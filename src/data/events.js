@@ -1,0 +1,58 @@
+export const eventsData = [
+  {
+    id: "corporate",
+    title: "Corporate Retreats & Team Grand Prix",
+    tagline: "Break away from ordinary boardrooms.",
+    description: "Combine strategic meetings in climate-controlled banquet suites with high-stakes team go-karting tournaments and sunset sky dining.",
+    badge: "Business & Adrenaline",
+    features: [
+      "Custom Grand Prix tournament scoring & podium ceremony",
+      "Executive conference AV & presentation systems",
+      "Curated corporate luncheon & dinner catering",
+      "Dedicated event host & timing coordinators",
+    ],
+    accent: "#E10600",
+  },
+  {
+    id: "birthdays",
+    title: "Milestone Birthdays & Private Parties",
+    tagline: "Celebrate with real speed and spectacle.",
+    description: "Whether turning 10 or 50, create an unforgettable celebration featuring VR battles, track races, custom themed décor, and panoramic cake-cutting.",
+    badge: "High-Energy Milestones",
+    features: [
+      "Exclusive multi-zone activity access",
+      "Custom celebration setups on the Sky Deck",
+      "Thematic motorsport party styling",
+      "Custom party coordination & commemorative keepsakes",
+    ],
+    accent: "#E10600",
+  },
+  {
+    id: "weddings",
+    title: "Weddings & Grand Receptions",
+    tagline: "A dramatic, modern backdrop for your grand day.",
+    description: "Transform our sprawling banquet architecture into a bespoke luxury wedding, sangeet, or engagement celebration with turnkey décor and lavish dining.",
+    badge: "Grand Celebrations",
+    features: [
+      "Expansive ballroom layouts accommodating large guest lists",
+      "Bridal & groom luxury private green rooms",
+      "Turnkey stage lighting, sound & floral production",
+      "Multi-course gourmet feasts prepared by culinary chefs",
+    ],
+    accent: "#E10600",
+  },
+  {
+    id: "meets",
+    title: "Automotive Meets & Enthusiast Gatherings",
+    tagline: "The premier hub for passionate motorheads.",
+    description: "Host car clubs, bike rallies, brand launches, and enthusiast track days with dedicated paddock parking, showcase lighting, and big-screen broadcasts.",
+    badge: "Motorsport Community",
+    features: [
+      "Spacious dedicated vehicle display paddocks",
+      "Live track telemetry projection in the screening zone",
+      "Automotive photography & videography packages",
+      "Pit-lane food & beverage stations",
+    ],
+    accent: "#E10600",
+  },
+];

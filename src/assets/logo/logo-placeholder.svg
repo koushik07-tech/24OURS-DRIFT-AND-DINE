@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 70" fill="none">
+  <!-- Dark background -->
+  <rect width="280" height="70" rx="8" fill="#0A0A0A" />
+  
+  <!-- Speedometer Arc Motif -->
+  <path d="M 18 48 A 22 22 0 1 1 54 48" stroke="#333333" stroke-width="3" stroke-linecap="round" fill="none" />
+  <path d="M 18 48 A 22 22 0 0 1 45 20" stroke="#E10600" stroke-width="3.5" stroke-linecap="round" fill="none" />
+  
+  <!-- Go-Kart Racer Silhouette Accent -->
+  <circle cx="36" cy="32" r="3.5" fill="#FFFFFF" />
+  <path d="M 31 38 L 41 38 L 44 45 L 28 45 Z" fill="#E10600" />
+
+  <!-- 24 Numeral -->
+  <text x="68" y="44" font-family="'Syne', sans-serif" font-size="34" font-weight="900" fill="#FFFFFF" letter-spacing="-1">24</text>
+  
+  <!-- ours Wordmark -->
+  <text x="110" y="44" font-family="'Outfit', sans-serif" font-size="28" font-weight="600" fill="#E5E7EB" letter-spacing="1">ours</text>
+  
+  <!-- Red arrow accent -->
+  <path d="M 180 34 L 186 38 L 180 42" stroke="#E10600" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Subtitle: DRIFT AND DINE -->
+  <text x="69" y="58" font-family="'Space Grotesk', sans-serif" font-size="9" font-weight="700" fill="#E10600" letter-spacing="2.8">DRIFT AND DINE</text>
+</svg>

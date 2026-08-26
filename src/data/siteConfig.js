@@ -1,0 +1,42 @@
+export const siteConfig = {
+  name: "24OURS",
+  tagline: "DRIFT AND DINE",
+  slogan: "RACE. PLAY. DINE. CELEBRATE.",
+  badgeText: "COMING SOON",
+  location: {
+    city: "Chikkaballapura",
+    state: "Karnataka",
+    country: "India",
+    region: "Bengaluru–Chikkaballapura Leisure Corridor",
+    coordinates: "13.4325° N, 77.7275° E",
+    displayAddress: "Chikkaballapura, Karnataka, India",
+    accessNote: "Strategically located along the scenic highway corridor of Chikkaballapura.",
+  },
+  status: {
+    state: "Under Construction",
+    phase: "Pre-Launch Journey",
+    message: "We're building Karnataka's premier motorsport and entertainment destination.",
+  },
+  navigation: [
+    { name: "Home", href: "#hero" },
+    { name: "Experiences", href: "#pillars" },
+    { name: "About", href: "#intro" },
+    { name: "Attractions", href: "#attractions" },
+    { name: "Sky Dining", href: "#sky-dining" },
+    { name: "Events", href: "#events" },
+    { name: "Gallery", href: "#gallery" },
+    { name: "Location", href: "#location" },
+  ],
+  cta: {
+    nav: "Explore 24OURS",
+    hero: "Explore the Experience",
+    journey: "Follow the Journey",
+    updates: "Get Updates",
+  },
+  socials: [
+    { name: "Instagram", url: "#", handle: "@24oursdriftanddine" },
+    { name: "YouTube", url: "#", handle: "24OURS Drift and Dine" },
+    { name: "LinkedIn", url: "#", handle: "24OURS Entertainment" },
+    { name: "X / Twitter", url: "#", handle: "@24oursindia" },
+  ],
+};

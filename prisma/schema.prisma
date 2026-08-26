@@ -1,0 +1,275 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  USER
+  ADMIN
+  STAFF
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+  REFUNDED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
+}
+
+model User {
+  id            String         @id @default(cuid())
+  name          String
+  email         String         @unique
+  phone         String?
+  passwordHash  String
+  role          Role           @default(USER)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  bookings      Booking[]
+  reviews       Review[]
+  notifications Notification[]
+}
+
+model Experience {
+  id              String            @id @default(cuid())
+  slug            String            @unique
+  name            String
+  headline        String
+  category        String
+  description     String
+  durationMinutes Int               @default(30)
+  minAge          Int               @default(12)
+  capacityPerSlot Int               @default(10)
+  basePrice       Float             @default(999.0)
+  heroVideoUrl    String?
+  posterImageUrl  String?
+  isActive        Boolean           @default(true)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  pricing         Pricing[]
+  packages        PackageItem[]
+  bookings        Booking[]
+  images          ExperienceImage[]
+}
+
+model ExperienceImage {
+  id           String     @id @default(cuid())
+  experienceId String
+  experience   Experience @relation(fields: [experienceId], references: [id], onDelete: Cascade)
+  imageUrl     String
+  altText      String?
+  isFeatured   Boolean    @default(false)
+}
+
+model Pricing {
+  id           String     @id @default(cuid())
+  experienceId String
+  experience   Experience @relation(fields: [experienceId], references: [id], onDelete: Cascade)
+  title        String
+  price        Float
+  duration     String
+  features     String[]
+  isPopular    Boolean    @default(false)
+}
+
+model Package {
+  id          String        @id @default(cuid())
+  name        String
+  slug        String        @unique
+  description String
+  price       Float
+  duration    String
+  minGuests   Int           @default(1)
+  maxGuests   Int           @default(10)
+  isFeatured  Boolean       @default(false)
+  items       PackageItem[]
+  bookings    Booking[]
+}
+
+model PackageItem {
+  id           String     @id @default(cuid())
+  packageId    String
+  package      Package    @relation(fields: [packageId], references: [id], onDelete: Cascade)
+  experienceId String
+  experience   Experience @relation(fields: [experienceId], references: [id], onDelete: Cascade)
+}
+
+model Booking {
+  id             String        @id @default(cuid())
+  bookingCode    String        @unique // e.g. "TORQ-24O-83749"
+  userId         String?
+  user           User?         @relation(fields: [userId], references: [id])
+  customerName   String
+  customerEmail  String
+  customerPhone  String
+  experienceId   String?
+  experience     Experience?   @relation(fields: [experienceId], references: [id])
+  packageId      String?
+  package        Package?      @relation(fields: [packageId], references: [id])
+  experienceName String?
+  date           DateTime
+  timeSlot       String
+  guestCount     Int           @default(1)
+  totalAmount    Float
+  bookingStatus  BookingStatus @default(PENDING)
+  paymentStatus  PaymentStatus @default(PENDING)
+  qrCodeUrl      String?
+  notes                String?
+  managerEmailSentAt   DateTime?
+  customerEmailSentAt  DateTime?
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+  payment              Payment?
+
+  @@index([userId])
+  @@index([experienceId])
+  @@index([date, timeSlot])
+  @@index([bookingStatus])
+}
+
+model Payment {
+  id                String        @id @default(cuid())
+  bookingId         String        @unique
+  booking           Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  amount            Float
+  currency          String        @default("INR")
+  razorpayOrderId   String?
+  razorpayPaymentId String?
+  razorpaySignature String?
+  status            PaymentStatus @default(PENDING)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  @@index([status])
+  @@index([razorpayOrderId])
+  @@index([razorpayPaymentId])
+}
+
+
+model EventEnquiry {
+  id             String    @id @default(cuid())
+  name           String
+  email          String
+  phone          String
+  eventType      String
+  expectedGuests Int       @default(1)
+  preferredDate  DateTime?
+  preferredTime  String?
+  requirements   String?
+  message        String?
+  status         String    @default("PENDING") // PENDING, CONTACTED, QUOTED, BOOKED, CLOSED
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+model MenuItem {
+  id          String  @id @default(cuid())
+  name        String
+  category    String // Starters, Mains, Mocktails, Sky Specials, Desserts
+  description String
+  price       Float
+  isSignature Boolean @default(false)
+  imageUrl    String?
+}
+
+model AutomotiveVehicle {
+  id           String  @id @default(cuid())
+  name         String
+  category     String // Supercar, Electric Kart, RC Scale, Hyperbike, Simulator
+  power        String
+  topSpeed     String
+  acceleration String
+  description  String
+  specs        Json?
+  imageUrl     String?
+  isFeatured   Boolean @default(false)
+}
+
+model GalleryItem {
+  id         String   @id @default(cuid())
+  title      String
+  category   String // GO-KARTING, RC RACING, RESTAURANT, EVENTS, AUTOMOTIVE, VENUE, PEOPLE
+  type       String   @default("image") // image, video
+  url        String
+  thumbnail  String?
+  altText    String?
+  isFeatured Boolean  @default(false)
+  createdAt  DateTime @default(now())
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id])
+  authorName String
+  rating     Int      @default(5)
+  experience String
+  comment    String
+  isApproved Boolean  @default(true)
+  createdAt  DateTime @default(now())
+
+  @@index([isApproved])
+  @@index([userId])
+}
+
+model Offer {
+  id             String   @id @default(cuid())
+  code           String   @unique
+  name           String
+  discountType   String   @default("PERCENTAGE") // PERCENTAGE, FIXED
+  discountAmount Float
+  startDate      DateTime
+  endDate        DateTime
+  usageLimit     Int      @default(100)
+  usedCount      Int      @default(0)
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  subject   String
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model NewsletterSubscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  interests String[] @default([])
+  source    String   @default("24OURS-PreLaunch-Web")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

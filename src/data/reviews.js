@@ -1,0 +1,38 @@
+export const reviewsData = [
+  {
+    id: "r1",
+    authorName: "Aditya Verma",
+    rating: 5,
+    experience: "Go-Karting Grand Prix",
+    date: "Early Paddock Preview",
+    comment: "The circuit layout is nothing short of world-class! The hairpin elevation changes and electric kart torque give you an unbelievable rush. Cannot wait for the full flag-off.",
+    avatar: "AV",
+  },
+  {
+    id: "r2",
+    authorName: "Divya Chandran",
+    rating: 5,
+    experience: "360° Sky Dining",
+    date: "VIP Culinary Showcase",
+    comment: "Dining suspended high above the track while watching the sunset over Chikkaballapura is breathtaking. The truffle sliders and craft mocktails were perfection.",
+    avatar: "DC",
+  },
+  {
+    id: "r3",
+    authorName: "Rajesh & Team (Tech Corp)",
+    rating: 5,
+    experience: "Corporate Retreat & Banquets",
+    date: "Corporate Showcase",
+    comment: "We hosted an executive offsite here. The combination of presentation rooms and competitive team karting created the most engaging retreat our team has ever had.",
+    avatar: "TC",
+  },
+  {
+    id: "r4",
+    authorName: "Neha Reddy",
+    rating: 5,
+    experience: "VR Gaming & RC Arena",
+    date: "Early Preview",
+    comment: "My kids were completely obsessed with the RC buggy arena, and the 6-DOF VR motion simulators felt like real F1 cockpits! True family destination.",
+    avatar: "NR",
+  },
+];
