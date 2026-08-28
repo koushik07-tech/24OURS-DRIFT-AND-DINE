@@ -13,7 +13,14 @@ export interface AuthResponse {
 }
 
 export const authApi = {
-  async register(data: { name: string; email: string; phone?: string; password: string }): Promise<AuthResponse> {
+  async register(data: {
+    name: string;
+    username: string;
+    email: string;
+    phone?: string;
+    password: string;
+    confirmPassword?: string;
+  }): Promise<AuthResponse & { message?: string }> {
     const res = await fetch("/api/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -22,7 +29,7 @@ export const authApi = {
     return res.json();
   },
 
-  async login(data: { email: string; password: string }): Promise<AuthResponse> {
+  async login(data: { identifier?: string; email?: string; username?: string; password: string }): Promise<AuthResponse> {
     const res = await fetch("/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },

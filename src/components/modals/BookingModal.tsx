@@ -75,8 +75,8 @@ export default function BookingModal() {
   const [pendingBooking, setPendingBooking] = useState<any>(null);
   const [paymentOrder, setPaymentOrder] = useState<any>(null);
   const [errorMessage, setErrorMessage] = useState("");
-  const [simulatedPrompt, setSimulatedPrompt] = useState(false);
   const [isPaymentFailed, setIsPaymentFailed] = useState(false);
+  const [isRazorpayCheckoutOpen, setIsRazorpayCheckoutOpen] = useState(false);
 
   if (!isBookingOpen) return null;
 
@@ -90,7 +90,7 @@ export default function BookingModal() {
     if (step > 1) setStep(step - 1);
   };
 
-  // Initiate or retry the payment process
+  // Initiate or retry the payment process with official Razorpay Checkout
   const initiatePayment = async (existingBooking?: any) => {
     if (isSubmitting) return; // Prevent double-clicking
     setErrorMessage("");
@@ -125,23 +125,16 @@ export default function BookingModal() {
       const orderData = orderRes.data;
       setPaymentOrder(orderData);
 
-      // 3. Check if simulated DEV mode or real Razorpay checkout
-      if (orderData.isSimulated) {
-        setSimulatedPrompt(true);
-        setIsSubmitting(false);
-        setLoadingText("");
-        return;
-      }
-
-      // 4. Live / Configured Razorpay Checkout Flow
+      // 3. Load official Razorpay Checkout SDK
       setLoadingText("Loading secure checkout...");
       const isScriptLoaded = await loadRazorpayScript();
       if (!isScriptLoaded) {
         throw new Error("Unable to load Razorpay payment gateway. Please check your network connection.");
       }
 
-      const rzpOptions = {
-        key: orderData.keyId,
+      // 4. Razorpay Checkout Configuration
+      const rzpOptions: any = {
+        key: orderData.keyId || "rzp_test_placeholder_key_id",
         amount: orderData.amountInPaise,
         currency: orderData.currency || "INR",
         name: "24OURS — DRIFT & DINE",
@@ -157,16 +150,18 @@ export default function BookingModal() {
         },
         modal: {
           ondismiss: function () {
-            // User cancelled/closed checkout: return to safe pending state without displaying failure
+            // User cancelled/closed checkout: keep booking PENDING and allow retry
+            setIsRazorpayCheckoutOpen(false);
             setIsSubmitting(false);
             setLoadingText("");
             setErrorMessage("Payment checkout closed. Payment pending — your booking is not confirmed yet. You can retry payment anytime below.");
           },
         },
         handler: async function (response: any) {
+          setIsRazorpayCheckoutOpen(false);
           try {
             setIsSubmitting(true);
-            setLoadingText("Verifying payment on server...");
+            setLoadingText("Verifying payment with server...");
             setErrorMessage("");
 
             // 5. Verify cryptographic signature on the server
@@ -179,7 +174,7 @@ export default function BookingModal() {
 
             if (!verifyRes.success || !verifyRes.data) {
               setIsPaymentFailed(true);
-              throw new Error("Payment verification failed — your booking has not been confirmed.");
+              throw new Error(verifyRes.error?.message || "Your payment could not be completed. Please try again.");
             }
 
             const confirmed = verifyRes.data.booking || {
@@ -194,7 +189,7 @@ export default function BookingModal() {
             await refreshBookings();
           } catch (err: any) {
             setIsPaymentFailed(true);
-            setErrorMessage(err.message || "Payment verification failed — your booking has not been confirmed.");
+            setErrorMessage(err.message || "Your payment could not be completed. Please try again.");
           } finally {
             setIsSubmitting(false);
             setLoadingText("");
@@ -204,15 +199,44 @@ export default function BookingModal() {
 
       const rzp = new (window as any).Razorpay(rzpOptions);
       rzp.on("payment.failed", function (resp: any) {
-        console.error("[RazorpaySDK] Payment failed event:", resp.error);
+        // Safe extraction of Razorpay failure details without throwing
+        const errorInfo = (resp && typeof resp === "object" && resp.error) ? resp.error : {};
+        const errorCode = errorInfo.code || "PAYMENT_FAILED";
+        const errorDescription =
+          errorInfo.description ||
+          errorInfo.reason ||
+          "Your payment could not be completed. Please try again.";
+        const errorSource = errorInfo.source;
+        const errorStep = errorInfo.step;
+        const errorReason = errorInfo.reason;
+        const paymentId = errorInfo.metadata?.payment_id;
+
+        // Use console.warn in development mode only to prevent triggering the Next.js error overlay
+        if (process.env.NODE_ENV !== "production") {
+          console.warn("[RazorpaySDK] Payment failed event:", {
+            code: errorCode,
+            description: errorDescription,
+            source: errorSource,
+            step: errorStep,
+            reason: errorReason,
+            paymentId: paymentId,
+          });
+        }
+
+        setIsRazorpayCheckoutOpen(false);
         setIsPaymentFailed(true);
-        setErrorMessage(`Payment verification failed — your booking has not been confirmed: ${resp.error?.description || "Transaction declined."}`);
+        setErrorMessage(errorDescription);
         setIsSubmitting(false);
         setLoadingText("");
       });
+      setIsRazorpayCheckoutOpen(true);
       rzp.open();
+      setIsSubmitting(false);
+      setLoadingText("");
     } catch (err: any) {
-      setErrorMessage(err.message || "Failed to proceed to payment.");
+      setIsRazorpayCheckoutOpen(false);
+      setIsPaymentFailed(true);
+      setErrorMessage(err.message || "Your payment could not be completed. Please try again.");
       setIsSubmitting(false);
       setLoadingText("");
     }
@@ -221,88 +245,6 @@ export default function BookingModal() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     initiatePayment();
-  };
-
-  // Handler for Developer Simulated Success
-  const handleSimulatedSuccess = async () => {
-    if (isSubmitting || !pendingBooking || !paymentOrder) return;
-    setIsSubmitting(true);
-    setLoadingText("Verifying simulated payment...");
-    setErrorMessage("");
-    setIsPaymentFailed(false);
-
-    try {
-      const simPaymentId = `pay_sim_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-      const verifyRes = await paymentsApi.verifyPayment({
-        bookingId: pendingBooking.id,
-        razorpayOrderId: paymentOrder.orderId,
-        razorpayPaymentId: simPaymentId,
-        razorpaySignature: "simulated_dev_signature",
-      });
-
-      if (!verifyRes.success || !verifyRes.data) {
-        setIsPaymentFailed(true);
-        throw new Error("Payment verification failed — your booking has not been confirmed.");
-      }
-
-      const confirmed = verifyRes.data.booking || {
-        ...pendingBooking,
-        bookingStatus: "CONFIRMED",
-        paymentStatus: "SUCCESS",
-        status: "CONFIRMED",
-      };
-
-      setConfirmedBooking(confirmed);
-      setSimulatedPrompt(false);
-      setStep(4);
-      await refreshBookings();
-    } catch (err: any) {
-      setIsPaymentFailed(true);
-      setErrorMessage(err.message || "Payment verification failed — your booking has not been confirmed.");
-    } finally {
-      setIsSubmitting(false);
-      setLoadingText("");
-    }
-  };
-
-  // Handler for Simulated Cancellation / Retry Test
-  const handleSimulatedCancel = () => {
-    setSimulatedPrompt(false);
-    setIsSubmitting(false);
-    setIsPaymentFailed(false);
-    setErrorMessage("Payment checkout closed. Payment pending — your booking is not confirmed yet. You can click 'Retry Payment' below.");
-  };
-
-  // Handler for Simulated Signature Mismatch (Testing Rejection)
-  const handleSimulatedSignatureFailure = async () => {
-    if (isSubmitting || !pendingBooking || !paymentOrder) return;
-    setIsSubmitting(true);
-    setLoadingText("Testing server signature rejection...");
-    setErrorMessage("");
-
-    try {
-      const simPaymentId = `pay_sim_fail_${Date.now()}`;
-      const verifyRes = await paymentsApi.verifyPayment({
-        bookingId: pendingBooking.id,
-        razorpayOrderId: paymentOrder.orderId,
-        razorpayPaymentId: simPaymentId,
-        razorpaySignature: "invalid_bad_signature_mismatch",
-      });
-
-      if (!verifyRes.success) {
-        setIsPaymentFailed(true);
-        setSimulatedPrompt(false);
-        setErrorMessage("Payment verification failed — your booking has not been confirmed.");
-      }
-    } catch (err: any) {
-      setIsPaymentFailed(true);
-      setSimulatedPrompt(false);
-      setErrorMessage(err.message || "Payment verification failed — your booking has not been confirmed.");
-    } finally {
-      setIsSubmitting(false);
-      setLoadingText("");
-      await refreshBookings();
-    }
   };
 
   // Handler for Retrying Payment
@@ -335,7 +277,7 @@ export default function BookingModal() {
     setConfirmedBooking(null);
     setPendingBooking(null);
     setPaymentOrder(null);
-    setSimulatedPrompt(false);
+    setIsRazorpayCheckoutOpen(false);
     setIsPaymentFailed(false);
     setErrorMessage("");
     setLoadingText("");
@@ -345,9 +287,9 @@ export default function BookingModal() {
   const estimatedTotal = getEstimatedPrice(experience, guests);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-fadeIn">
+    <div className={`fixed inset-0 z-40 flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-fadeIn ${isRazorpayCheckoutOpen ? "pointer-events-none" : ""}`}>
       <div
-        className="relative max-w-2xl w-full bg-carbon-950 border border-white/15 rounded-3xl p-6 sm:p-10 shadow-2xl text-left max-h-[90vh] overflow-y-auto"
+        className={`relative max-w-2xl w-full bg-carbon-950 border border-white/15 rounded-3xl p-6 sm:p-10 shadow-2xl text-left max-h-[90vh] overflow-y-auto transition-all duration-200 ${isRazorpayCheckoutOpen ? "opacity-0 scale-95 pointer-events-none" : "opacity-100 scale-100"}`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close Button */}
@@ -531,15 +473,15 @@ export default function BookingModal() {
               <div className="p-6 rounded-3xl bg-carbon-900 border border-red-500/40 space-y-5 animate-fadeIn">
                 <div className="flex items-center gap-2 text-brand-red font-mono text-xs font-bold uppercase">
                   <AlertTriangle className="w-5 h-5 text-brand-red" />
-                  <span>PAYMENT VERIFICATION FAILED</span>
+                  <span>PAYMENT FAILED</span>
                 </div>
 
                 <div className="p-4 bg-red-950/40 border border-red-800/40 rounded-2xl text-red-200 text-xs font-mono space-y-2">
                   <p className="font-bold text-sm text-red-100">
-                    Payment verification failed — your booking has not been confirmed.
+                    Payment failed
                   </p>
                   <p className="text-red-300/80 text-[11px]">
-                    {errorMessage || "Cryptographic signature validation failed. No charge was confirmed for your ticket pass."}
+                    {errorMessage || "Your payment could not be completed. Please try again."}
                   </p>
                 </div>
 
@@ -583,65 +525,6 @@ export default function BookingModal() {
                   >
                     <Ban className="w-4 h-4 text-carbon-400" />
                     <span>Cancel Booking</span>
-                  </button>
-                </div>
-              </div>
-            ) : simulatedPrompt ? (
-              /* Simulated Payment Prompt for Development */
-              <div className="p-6 rounded-3xl bg-carbon-900 border border-brand-red/40 space-y-4 animate-fadeIn">
-                <div className="flex items-center gap-2 text-brand-red font-mono text-xs font-bold uppercase">
-                  <Sparkles className="w-4 h-4" />
-                  <span>DEVELOPMENT / SIMULATED PAYMENT GATEWAY</span>
-                </div>
-
-                <p className="text-xs text-carbon-300 font-sans">
-                  Razorpay test credentials are in simulated developer mode. Select an action to test the server verification, retry behavior, or idempotency:
-                </p>
-
-                <div className="p-3 bg-carbon-950 rounded-xl border border-white/10 font-mono text-xs space-y-1">
-                  <div className="flex justify-between">
-                    <span className="text-carbon-400">Order ID:</span>
-                    <span className="text-white">{paymentOrder?.orderId}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-carbon-400">Amount:</span>
-                    <span className="text-emerald-400 font-bold">₹{paymentOrder?.amount}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-carbon-400">Booking Code:</span>
-                    <span className="text-brand-red font-bold">{paymentOrder?.bookingCode}</span>
-                  </div>
-                </div>
-
-                <div className="space-y-2 pt-2">
-                  <button
-                    type="button"
-                    disabled={isSubmitting}
-                    onClick={handleSimulatedSuccess}
-                    className="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-mono text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg disabled:opacity-50"
-                  >
-                    {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
-                    <span>{isSubmitting ? (loadingText || "Verifying...") : "Simulate Payment Success (Authorize & Issue Pass)"}</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    disabled={isSubmitting}
-                    onClick={handleSimulatedCancel}
-                    className="w-full py-2.5 rounded-xl bg-carbon-850 hover:bg-carbon-800 border border-white/10 text-carbon-300 font-mono text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 disabled:opacity-50"
-                  >
-                    <RotateCcw className="w-3.5 h-3.5" />
-                    <span>Cancel / Close Checkout (Keep PENDING for Retry)</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    disabled={isSubmitting}
-                    onClick={handleSimulatedSignatureFailure}
-                    className="w-full py-2.5 rounded-xl bg-red-950/80 hover:bg-red-900 border border-red-700/60 text-red-200 font-mono text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 disabled:opacity-50"
-                  >
-                    <AlertTriangle className="w-3.5 h-3.5 text-red-400" />
-                    <span>Simulate Signature Mismatch (Test Rejection)</span>
                   </button>
                 </div>
               </div>

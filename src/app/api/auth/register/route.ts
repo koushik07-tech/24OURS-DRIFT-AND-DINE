@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { registerSchema } from "@/lib/validation/schemas";
 import { AuthService } from "@/lib/services/auth.service";
-import { setAuthCookie } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
   try {
@@ -21,15 +20,16 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { user, token } = await AuthService.register(validated.data);
+    const { user } = await AuthService.register(validated.data);
 
-    const response = NextResponse.json({
-      success: true,
-      data: { user, token },
-    });
-
-    setAuthCookie(response, token);
-    return response;
+    return NextResponse.json(
+      {
+        success: true,
+        message: "Account created successfully. Please log in.",
+        data: { user },
+      },
+      { status: 201 }
+    );
   } catch (error: any) {
     if (error.message === "EMAIL_EXISTS") {
       return NextResponse.json(
@@ -38,6 +38,19 @@ export async function POST(req: NextRequest) {
           error: {
             code: "EMAIL_EXISTS",
             message: "An account with this email address already exists.",
+          },
+        },
+        { status: 409 }
+      );
+    }
+
+    if (error.message === "USERNAME_EXISTS") {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            code: "USERNAME_EXISTS",
+            message: "This username is already taken. Please choose another.",
           },
         },
         { status: 409 }

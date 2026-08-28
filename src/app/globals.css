@@ -62,3 +62,9 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #E10600;
 }
+
+/* Ensure official Razorpay Checkout modal is always positioned atop all application overlays */
+.razorpay-container {
+  z-index: 99999999 !important;
+  position: fixed !important;
+}

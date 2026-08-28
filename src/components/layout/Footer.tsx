@@ -2,15 +2,21 @@
 
 import React from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { MapPin, Phone, Mail, Clock, ArrowUp, Instagram, Youtube, Linkedin, Twitter } from "lucide-react";
 import { siteConfig } from "@/config/site";
 
 export default function Footer() {
+  const pathname = usePathname();
   const currentYear = new Date().getFullYear();
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
+
+  if (pathname === "/login" || pathname === "/signup") {
+    return null;
+  }
 
   return (
     <footer className="bg-carbon-950 border-t border-white/10 pt-16 pb-12 text-carbon-400 font-sans text-xs select-none">

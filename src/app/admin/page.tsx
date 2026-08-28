@@ -93,7 +93,7 @@ export default function AdminPage() {
                   Super Admin
                 </span>
               </div>
-              <p className="text-xs font-mono text-carbon-400 mt-0.5">Session: {user?.email || "admin@24ours.com"}</p>
+              <p className="text-xs font-mono text-carbon-400 mt-0.5">Session: {user?.email || "Authenticated Administrator"}</p>
             </div>
           </div>
 

@@ -9,8 +9,15 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isAdmin: boolean;
   isLoading: boolean;
-  login: (email: string, password?: string) => Promise<{ success: boolean; user: User; error?: string }>;
-  register: (data: { name: string; email: string; phone?: string; password: string }) => Promise<{ success: boolean; user?: User; error?: string }>;
+  login: (identifier: string, password: string) => Promise<{ success: boolean; user?: User; error?: string }>;
+  register: (data: {
+    name: string;
+    username: string;
+    email: string;
+    phone?: string;
+    password: string;
+    confirmPassword?: string;
+  }) => Promise<{ success: boolean; message?: string; error?: string }>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
 }
@@ -40,33 +47,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     refreshUser();
   }, [refreshUser]);
 
-  const login = async (email: string, password = "Password123!") => {
+  const login = async (identifier: string, password: string) => {
     setIsLoading(true);
     try {
-      const res = await authApi.login({ email, password });
+      const res = await authApi.login({ identifier, password });
       if (res.success && res.data?.user) {
         setUser(res.data.user);
         setIsLoading(false);
         return { success: true, user: res.data.user };
       }
       setIsLoading(false);
-      return { success: false, user: null as any, error: res.error?.message || "Invalid credentials" };
+      return { success: false, error: res.error?.message || "Invalid username or password." };
     } catch (err: any) {
       setIsLoading(false);
-      return { success: false, user: null as any, error: err.message || "Failed to login" };
+      return { success: false, error: err.message || "Failed to login" };
     }
   };
 
-  const register = async (data: { name: string; email: string; phone?: string; password: string }) => {
+  const register = async (data: {
+    name: string;
+    username: string;
+    email: string;
+    phone?: string;
+    password: string;
+    confirmPassword?: string;
+  }) => {
     setIsLoading(true);
     try {
       const res = await authApi.register(data);
-      if (res.success && res.data?.user) {
-        setUser(res.data.user);
-        setIsLoading(false);
-        return { success: true, user: res.data.user };
-      }
       setIsLoading(false);
+      if (res.success) {
+        return { success: true, message: res.message || "Account created successfully. Please log in." };
+      }
       return { success: false, error: res.error?.message || "Registration failed" };
     } catch (err: any) {
       setIsLoading(false);
@@ -81,6 +93,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setUser(null);
       setIsLoading(false);
+      if (typeof window !== "undefined") {
+        window.location.href = "/login";
+      }
     }
   };
 

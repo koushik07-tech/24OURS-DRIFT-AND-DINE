@@ -43,50 +43,44 @@ export class PaymentService {
     const amountInPaise = Math.round(booking.totalAmount * 100);
     const keyId = process.env.RAZORPAY_KEY_ID;
     const keySecret = process.env.RAZORPAY_KEY_SECRET;
-    const isProduction = process.env.NODE_ENV === "production";
-    const isConfigured = this.isRazorpayConfigured();
 
-    if (isProduction && !isConfigured) {
-      console.error("[PaymentService] Production environment detected but Razorpay credentials are not configured.");
-      throw new Error("PAYMENT_GATEWAY_NOT_CONFIGURED: Valid Razorpay credentials are required in production.");
+    if (!keyId || !keySecret) {
+      console.error("[PaymentService] Missing Razorpay credentials in environment.");
+      throw new Error("PAYMENT_GATEWAY_NOT_CONFIGURED: RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET must be configured.");
     }
 
-    let orderId = `order_sim_${booking.id.slice(-6)}_${Date.now()}`;
+    let orderId: string;
 
-    if (isConfigured && keyId && keySecret) {
-      try {
-        const auth = Buffer.from(`${keyId}:${keySecret}`).toString("base64");
-        const res = await fetch("https://api.razorpay.com/v1/orders", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Basic ${auth}`,
+    try {
+      const auth = Buffer.from(`${keyId}:${keySecret}`).toString("base64");
+      const res = await fetch("https://api.razorpay.com/v1/orders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Basic ${auth}`,
+        },
+        body: JSON.stringify({
+          amount: amountInPaise,
+          currency: "INR",
+          receipt: booking.bookingCode,
+          notes: {
+            bookingId: booking.id,
+            bookingCode: booking.bookingCode,
+            customerName: booking.customerName,
+            customerEmail: booking.customerEmail,
           },
-          body: JSON.stringify({
-            amount: amountInPaise,
-            currency: "INR",
-            receipt: booking.bookingCode,
-            notes: {
-              bookingId: booking.id,
-              bookingCode: booking.bookingCode,
-              customerName: booking.customerName,
-              customerEmail: booking.customerEmail,
-            },
-          }),
-        });
+        }),
+      });
 
-        const data = await res.json();
-        if (!res.ok || !data.id) {
-          console.error("[PaymentService] Razorpay order creation failed:", data);
-          throw new Error(`RAZORPAY_ORDER_FAILED: ${data.error?.description || "Failed to initialize gateway order."}`);
-        }
-        orderId = data.id;
-      } catch (err: any) {
-        console.error("[PaymentService] Error communicating with Razorpay API:", err);
-        throw err;
+      const data = await res.json();
+      if (!res.ok || !data.id) {
+        console.error("[PaymentService] Razorpay order creation API error:", data);
+        throw new Error(`RAZORPAY_ORDER_FAILED: ${data.error?.description || data.error?.message || "Failed to initialize gateway order."}`);
       }
-    } else {
-      console.log(`[PaymentService - DEV / SIMULATED] Generated simulated order ID for booking: ${booking.bookingCode} (Amount: ₹${booking.totalAmount} / ${amountInPaise} paise)`);
+      orderId = data.id;
+    } catch (err: any) {
+      console.error("[PaymentService] Error communicating with Razorpay API:", err);
+      throw err;
     }
 
     // Persist razorpayOrderId in the payment ledger and reset status to PENDING for new attempt
@@ -123,8 +117,7 @@ export class PaymentService {
       amountInPaise,
       currency: "INR",
       bookingCode: booking.bookingCode,
-      keyId: isConfigured ? (keyId as string) : "rzp_test_placeholder_key_id",
-      isSimulated: !isConfigured,
+      keyId,
     };
   }
 

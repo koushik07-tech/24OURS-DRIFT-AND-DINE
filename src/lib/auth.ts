@@ -4,13 +4,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { Role } from "@prisma/client";
 
-const AUTH_SECRET = process.env.AUTH_SECRET || "fallback_24ours_secret_key_minimum_32_chars_2026";
+const AUTH_SECRET = process.env.AUTH_SECRET || "your-super-secret-jwt-key-change-in-production-min-32-chars";
 const AUTH_EXPIRES_IN = process.env.AUTH_EXPIRES_IN || "7d";
 const COOKIE_NAME = "24ours_auth_token";
 
 export interface TokenPayload {
   userId: string;
   email: string;
+  username?: string | null;
   role: Role;
   name: string;
 }
@@ -82,5 +83,13 @@ export function setAuthCookie(response: NextResponse, token: string): void {
 }
 
 export function clearAuthCookie(response: NextResponse): void {
+  response.cookies.set(COOKIE_NAME, "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 0,
+    expires: new Date(0),
+    path: "/",
+  });
   response.cookies.delete(COOKIE_NAME);
 }
