@@ -25,6 +25,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const res = await fetch("/api/auth/me", {
         method: "GET",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         cache: "no-store",
       });
       const json = await res.json();
@@ -68,6 +69,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({
           identifier: identifierOrEmail,
           password: password || "AdminPassword123!",
@@ -98,6 +100,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify(data),
       });
 
@@ -119,6 +122,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await fetch("/api/auth/logout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
       });
     } catch {}
     setUser(null);

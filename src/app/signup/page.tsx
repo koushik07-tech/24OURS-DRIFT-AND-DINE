@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Lock, Mail, User, Phone, CheckSquare, Square, Flag } from "lucide-react";
@@ -8,7 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 
 export default function SignupPage() {
   const router = useRouter();
-  const { register, isLoading } = useAuth();
+  const { user, isAuthenticated, register, isLoading } = useAuth();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -16,6 +16,13 @@ export default function SignupPage() {
   const [password, setPassword] = useState("");
   const [agreed, setAgreed] = useState(true);
   const [error, setError] = useState("");
+
+  // If already authenticated, redirect to dashboard or admin
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      window.location.href = user.role === "ADMIN" ? "/admin" : "/dashboard";
+    }
+  }, [isAuthenticated, user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,6 +51,19 @@ export default function SignupPage() {
     // Hard redirect guarantees clean cookie transmission and prevents React 19 Error #460
     window.location.href = "/dashboard";
   };
+
+  // If already authenticated, show redirecting state
+  if (isAuthenticated && user) {
+    return (
+      <div className="pt-32 pb-20 min-h-screen subtle-grid flex items-center justify-center px-4">
+        <div className="max-w-md w-full p-8 rounded-3xl bg-carbon-950 border border-white/15 text-center space-y-4 shadow-card-elevated">
+          <div className="w-10 h-10 border-2 border-brand-red border-t-transparent rounded-full animate-spin mx-auto" />
+          <h2 className="text-xl font-display font-bold text-white uppercase">Redirecting...</h2>
+          <p className="text-xs font-mono text-carbon-400">Taking you to Driver Telemetry Portal</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="pt-32 pb-20 min-h-screen subtle-grid flex items-center justify-center px-4">

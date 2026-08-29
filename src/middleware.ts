@@ -77,7 +77,7 @@ export async function middleware(req: NextRequest) {
   // 4. Handle authenticated users attempting to access /login or /signup
   if (isAuthenticated && isAuthPage) {
     const redirectUrl = req.nextUrl.searchParams.get("redirect");
-    if (redirectUrl && redirectUrl.startsWith("/")) {
+    if (redirectUrl && redirectUrl.startsWith("/") && !redirectUrl.startsWith("/login") && !redirectUrl.startsWith("/signup")) {
       return NextResponse.redirect(new URL(redirectUrl, req.url));
     }
     if (isAdmin) {

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Lock, Mail, User, ShieldCheck, Flag, ArrowLeft } from "lucide-react";
@@ -8,11 +8,31 @@ import { useAuth } from "@/context/AuthContext";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, isLoading } = useAuth();
+  const { user, isAuthenticated, login, isLoading } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+
+  // Helper to determine destination from query params or role
+  const getDestination = (role?: string) => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const redirect = params.get("redirect");
+      if (redirect && redirect.startsWith("/") && !redirect.startsWith("/login") && !redirect.startsWith("/signup")) {
+        return redirect;
+      }
+    }
+    return role === "ADMIN" ? "/admin" : "/dashboard";
+  };
+
+  // If already authenticated, automatically redirect away from /login
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      const dest = getDestination(user.role);
+      window.location.href = dest;
+    }
+  }, [isAuthenticated, user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,7 +46,7 @@ export default function LoginPage() {
     let targetUrl = "/dashboard";
     try {
       const res = await login(email, password);
-      targetUrl = res.user.role === "ADMIN" ? "/admin" : "/dashboard";
+      targetUrl = getDestination(res.user.role);
     } catch (err: any) {
       setError(err?.message || "Invalid credentials. Please try again.");
       return;
@@ -43,9 +63,10 @@ export default function LoginPage() {
     setPassword(demoPassword);
     setError("");
 
-    const targetUrl = role === "ADMIN" ? "/admin" : "/dashboard";
+    let targetUrl = getDestination(role);
     try {
-      await login(demoEmail, demoPassword);
+      const res = await login(demoEmail, demoPassword);
+      targetUrl = getDestination(res.user.role);
     } catch (err: any) {
       setError(err?.message || "Demo login failed.");
       return;
@@ -54,6 +75,19 @@ export default function LoginPage() {
     // Hard redirect guarantees clean cookie transmission and prevents React 19 Error #460
     window.location.href = targetUrl;
   };
+
+  // If already authenticated, show redirecting state rather than login form
+  if (isAuthenticated && user) {
+    return (
+      <div className="pt-32 pb-20 min-h-screen subtle-grid flex items-center justify-center px-4">
+        <div className="max-w-md w-full p-8 rounded-3xl bg-carbon-950 border border-white/15 text-center space-y-4 shadow-card-elevated">
+          <div className="w-10 h-10 border-2 border-brand-red border-t-transparent rounded-full animate-spin mx-auto" />
+          <h2 className="text-xl font-display font-bold text-white uppercase">Redirecting...</h2>
+          <p className="text-xs font-mono text-carbon-400">Taking you to {user.role === "ADMIN" ? "Admin Console" : "Driver Telemetry Portal"}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="pt-32 pb-20 min-h-screen subtle-grid flex items-center justify-center px-4">
