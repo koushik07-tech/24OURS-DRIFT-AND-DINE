@@ -189,7 +189,7 @@ export default function Pillars({ onOpenJourneyModal }) {
                 </div>
                 <div className="p-3 rounded-xl bg-carbon-900 border border-white/5 flex items-center justify-between text-xs font-mono">
                   <span className="text-carbon-300">Target Region</span>
-                  <span className="text-white">Chikkaballapura</span>
+                  <span className="text-white">Malur, Kolar, Karnataka</span>
                 </div>
               </div>
             </div>

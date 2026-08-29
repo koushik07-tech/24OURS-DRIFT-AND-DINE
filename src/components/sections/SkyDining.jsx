@@ -8,7 +8,7 @@ export default function SkyDining({ onOpenJourneyModal }) {
   const skyFeatures = [
     {
       title: "360° Panoramic Horizon",
-      description: "Elevated vantage point overlooking the racing circuits and the scenic skyline of Chikkaballapura.",
+      description: "Elevated vantage point overlooking the racing circuits and the scenic skyline of Malur, Kolar.",
       icon: Eye,
     },
     {
@@ -68,7 +68,7 @@ export default function SkyDining({ onOpenJourneyModal }) {
             </h3>
 
             <p className="text-base sm:text-lg text-carbon-300 font-sans leading-relaxed">
-              Designed as South India’s most dramatic dining experience, the 360° Sky Dining deck puts you directly above the adrenaline of the go-karting track while offering sweeping views of the surrounding Chikkaballapura landscape.
+              Designed as South India’s most dramatic dining experience, the 360° Sky Dining deck puts you directly above the adrenaline of the go-karting track while offering sweeping views of the surrounding Malur, Kolar landscape.
             </p>
 
             <div className="p-4 rounded-2xl bg-carbon-950/80 border border-white/10 text-xs font-mono text-carbon-300 space-y-2">
@@ -114,7 +114,7 @@ export default function SkyDining({ onOpenJourneyModal }) {
                   Sky Dining Deck
                 </h4>
                 <p className="text-xs text-carbon-400 font-mono">
-                  CHIKKABALLAPURA LEISURE CORRIDOR
+                  MALUR, KOLAR LEISURE CORRIDOR
                 </p>
               </div>
 

@@ -36,12 +36,12 @@ const spaceGrotesk = Space_Grotesk({
 export const metadata: Metadata = {
   title: "24OURS — DRIFT AND DINE | Premier Motorsport & Entertainment Hub",
   description:
-    "An international-standard motorsport, sky dining, and luxury entertainment destination in Chikkaballapura, Karnataka. Electric go-karting, 360° panoramic dining, RC arena, and banquet halls.",
+    "An international-standard motorsport, sky dining, and luxury entertainment destination in Malur, Kolar, Karnataka. Electric go-karting, 360° panoramic dining, RC arena, and banquet halls.",
   keywords: [
     "24Ours",
     "Drift and Dine",
     "Go-Karting Bangalore",
-    "Chikkaballapura Go-Karting",
+    "Malur Kolar Go-Karting",
     "360 Sky Dining",
     "RC Racing Arena",
     "Motorsport Entertainment Hub",
@@ -50,7 +50,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "24OURS — DRIFT AND DINE | Premier Motorsport & Entertainment Hub",
     description:
-      "Electric go-karting, suspended 360° horizon dining, RC racing arena, and banquet architecture in Chikkaballapura, Karnataka.",
+      "Electric go-karting, suspended 360° horizon dining, RC racing arena, and banquet architecture in Malur, Kolar, Karnataka.",
     type: "website",
     locale: "en_IN",
     siteName: "24OURS — DRIFT AND DINE",
@@ -77,8 +77,8 @@ export default function RootLayout({
     },
     geo: {
       "@type": "GeoCoordinates",
-      latitude: 13.4325,
-      longitude: 77.7275,
+      latitude: 13.0039,
+      longitude: 77.9406,
     },
     openingHours: "Mo-Su 11:00-23:30",
   };

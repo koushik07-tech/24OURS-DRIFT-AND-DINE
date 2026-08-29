@@ -67,7 +67,7 @@ export default function PreLaunchCTA({ onOpenJourneyModal }) {
             </span>
             <span className="flex items-center gap-1.5">
               <MapPin className="w-4 h-4 text-brand-red" />
-              Chikkaballapura, KA
+              Malur, Kolar, Karnataka
             </span>
           </div>
         </div>

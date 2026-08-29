@@ -8,7 +8,7 @@ export default function Location({ onOpenJourneyModal }) {
   const connectivity = [
     {
       title: "Scenic Highway Access",
-      desc: "Conveniently situated along the high-growth Bengaluru–Chikkaballapura leisure corridor.",
+      desc: "Conveniently situated along the high-growth Bengaluru–Malur–Kolar leisure corridor.",
       icon: Car,
     },
     {
@@ -32,7 +32,7 @@ export default function Location({ onOpenJourneyModal }) {
         </Badge>
       }
       subtitle="Karnataka, India"
-      title="COMING TO CHIKKABALLAPURA."
+      title="COMING TO MALUR, KOLAR, KARNATAKA."
       description="Strategically placed away from city congestion to deliver sprawling tracks, open sky views, and a dedicated motorsport sanctuary."
       align="center"
       glowColor="red"
@@ -98,10 +98,10 @@ export default function Location({ onOpenJourneyModal }) {
                 <Compass className="w-7 h-7" />
               </div>
               <h4 className="text-2xl font-display font-black text-white uppercase tracking-wider">
-                Chikkaballapura
+                MALUR, KOLAR
               </h4>
               <p className="text-xs font-mono text-carbon-400">
-                13.4325° N • 77.7275° E
+                13.0039° N • 77.9406° E
               </p>
             </div>
 

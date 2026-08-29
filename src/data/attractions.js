@@ -50,7 +50,7 @@ export const attractionsData = [
     number: "03",
     name: "360° Sky Dining",
     headline: "DINE ABOVE THE ACTION.",
-    shortDesc: "An iconic elevated restaurant offering uninterrupted 360° panoramic horizon views of Chikkaballapura and the bustling track below.",
+    shortDesc: "An iconic elevated restaurant offering uninterrupted 360° panoramic horizon views of Malur, Kolar and the bustling track below.",
     category: "Culinary & Atmosphere",
     statusBadge: "Menu Coming Soon",
     tagline: "Panoramic gastronomy in the clouds",

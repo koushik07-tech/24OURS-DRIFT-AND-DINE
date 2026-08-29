@@ -331,7 +331,7 @@ export class EmailService {
     </div>
     <div class="footer">
       Automated dispatch from 24OURS Drift & Dine Backend Service.<br>
-      NH 44, Chikkaballapura, Karnataka — High-Torque Motorsport & Sky Dining.
+      Malur, Kolar, Karnataka — High-Torque Motorsport & Sky Dining.
     </div>
   </div>
 </body>
@@ -458,11 +458,11 @@ Automated dispatch from 24OURS Drift & Dine Server.
         • Please arrive <strong>15 minutes prior</strong> to your scheduled slot for driver briefing & RFID telemetry assignment.<br>
         • Present this QR code or booking code <strong>${booking.bookingCode}</strong> at the reception desk.<br>
         • Closed-toe shoes are mandatory for karting circuits.<br>
-        • Venue: <strong>NH 44, Chikkaballapura, Karnataka 562101</strong> (Near Nandi Hills Junction).
+        • Venue: <strong>Malur, Kolar, Karnataka</strong>.
       </div>
     </div>
     <div class="footer">
-      Questions or Rescheduling? Contact our Concierge at <a href="mailto:concierge@24oursdriftanddine.com" style="color: #e11d48;">concierge@24oursdriftanddine.com</a><br>
+      Questions or Rescheduling? Contact our Concierge at <a href="mailto:24ourschalukya@gmail.com" style="color: #e11d48;">24ourschalukya@gmail.com</a><br>
       © 2026 24OURS Drift & Dine. All rights reserved.
     </div>
   </div>
@@ -499,9 +499,9 @@ INSTRUCTIONS FOR USING YOUR PASS:
 - Please arrive 15 minutes prior to your time window for paddock check-in and briefing.
 - Present this booking ID or QR code at reception.
 - Closed-toe shoes are mandatory for karting tracks.
-- Venue: NH 44, Chikkaballapura, Karnataka.
+- Venue: Malur, Kolar, Karnataka.
 
-Need assistance? Contact concierge@24oursdriftanddine.com
+Need assistance? Contact 24ourschalukya@gmail.com
 `;
   }
 
@@ -567,7 +567,7 @@ Need assistance? Contact concierge@24oursdriftanddine.com
       </div>
     </div>
     <div class="footer">
-      Need to re-book or have questions? Contact our Concierge at <a href="mailto:concierge@24oursdriftanddine.com" style="color: #e11d48;">concierge@24oursdriftanddine.com</a><br>
+      Need to re-book or have questions? Contact our Concierge at <a href="mailto:24ourschalukya@gmail.com" style="color: #e11d48;">24ourschalukya@gmail.com</a><br>
       © 2026 24OURS Drift & Dine. All rights reserved.
     </div>
   </div>
@@ -596,7 +596,7 @@ ${reason ? `Reason:        ${reason}\n` : ""}
 REFUND NOTICE:
 If your payment was captured, eligible refunds are processed back to your original source of payment within 5-7 business days per our Cancellation Policy.
 
-Need assistance? Contact concierge@24oursdriftanddine.com
+Need assistance? Contact 24ourschalukya@gmail.com
 `;
   }
 }

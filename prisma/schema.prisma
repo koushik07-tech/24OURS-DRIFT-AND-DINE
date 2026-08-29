@@ -1,7 +1,6 @@
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 generator client {
@@ -109,36 +108,28 @@ model PackageItem {
 }
 
 model Booking {
-  id             String        @id @default(cuid())
-  bookingCode    String        @unique // e.g. "TORQ-24O-83749"
-  userId         String?
-  user           User?         @relation(fields: [userId], references: [id])
-  customerName   String
-  customerEmail  String
-  customerPhone  String
-  experienceId   String?
-  experience     Experience?   @relation(fields: [experienceId], references: [id])
-  packageId      String?
-  package        Package?      @relation(fields: [packageId], references: [id])
-  experienceName String?
-  date           DateTime
-  timeSlot       String
-  guestCount     Int           @default(1)
-  totalAmount    Float
-  bookingStatus  BookingStatus @default(PENDING)
-  paymentStatus  PaymentStatus @default(PENDING)
-  qrCodeUrl      String?
-  notes                String?
-  managerEmailSentAt   DateTime?
-  customerEmailSentAt  DateTime?
-  createdAt            DateTime      @default(now())
-  updatedAt            DateTime      @updatedAt
-  payment              Payment?
-
-  @@index([userId])
-  @@index([experienceId])
-  @@index([date, timeSlot])
-  @@index([bookingStatus])
+  id            String        @id @default(cuid())
+  bookingCode   String        @unique // e.g. "TORQ-24O-83749"
+  userId        String?
+  user          User?         @relation(fields: [userId], references: [id])
+  customerName  String
+  customerEmail String
+  customerPhone String
+  experienceId  String?
+  experience    Experience?   @relation(fields: [experienceId], references: [id])
+  packageId     String?
+  package       Package?      @relation(fields: [packageId], references: [id])
+  date          DateTime
+  timeSlot      String
+  guestCount    Int           @default(1)
+  totalAmount   Float
+  bookingStatus BookingStatus @default(PENDING)
+  paymentStatus PaymentStatus @default(PENDING)
+  qrCodeUrl     String?
+  notes         String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  payment       Payment?
 }
 
 model Payment {
@@ -153,12 +144,7 @@ model Payment {
   status            PaymentStatus @default(PENDING)
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
-
-  @@index([status])
-  @@index([razorpayOrderId])
-  @@index([razorpayPaymentId])
 }
-
 
 model EventEnquiry {
   id             String    @id @default(cuid())
@@ -171,26 +157,23 @@ model EventEnquiry {
   preferredTime  String?
   requirements   String?
   message        String?
-  status         String    @default("PENDING") // PENDING, CONTACTED, QUOTED, BOOKED, CLOSED
+  status         String    @default("PENDING") // PENDING, CONTACTED, QUOTED, BOOKED
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
-
-  @@index([status])
-  @@index([createdAt])
 }
 
 model MenuItem {
-  id          String  @id @default(cuid())
+  id          String   @id @default(cuid())
   name        String
   category    String // Starters, Mains, Mocktails, Sky Specials, Desserts
   description String
   price       Float
-  isSignature Boolean @default(false)
+  isSignature Boolean  @default(false)
   imageUrl    String?
 }
 
 model AutomotiveVehicle {
-  id           String  @id @default(cuid())
+  id           String   @id @default(cuid())
   name         String
   category     String // Supercar, Electric Kart, RC Scale, Hyperbike, Simulator
   power        String
@@ -199,7 +182,7 @@ model AutomotiveVehicle {
   description  String
   specs        Json?
   imageUrl     String?
-  isFeatured   Boolean @default(false)
+  isFeatured   Boolean  @default(false)
 }
 
 model GalleryItem {
@@ -224,23 +207,20 @@ model Review {
   comment    String
   isApproved Boolean  @default(true)
   createdAt  DateTime @default(now())
-
-  @@index([isApproved])
-  @@index([userId])
 }
 
 model Offer {
-  id             String   @id @default(cuid())
-  code           String   @unique
+  id             String    @id @default(cuid())
+  code           String    @unique
   name           String
-  discountType   String   @default("PERCENTAGE") // PERCENTAGE, FIXED
+  discountType   String    @default("PERCENTAGE") // PERCENTAGE, FIXED
   discountAmount Float
   startDate      DateTime
   endDate        DateTime
-  usageLimit     Int      @default(100)
-  usedCount      Int      @default(0)
-  isActive       Boolean  @default(true)
-  createdAt      DateTime @default(now())
+  usageLimit     Int       @default(100)
+  usedCount      Int       @default(0)
+  isActive       Boolean   @default(true)
+  createdAt      DateTime  @default(now())
 }
 
 model Notification {
@@ -251,8 +231,6 @@ model Notification {
   message   String
   isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
-
-  @@index([userId])
 }
 
 model ContactMessage {
@@ -270,7 +248,7 @@ model NewsletterSubscriber {
   id        String   @id @default(cuid())
   email     String   @unique
   name      String?
-  interests String[] @default([])
+  interests String[]
   source    String   @default("24OURS-PreLaunch-Web")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

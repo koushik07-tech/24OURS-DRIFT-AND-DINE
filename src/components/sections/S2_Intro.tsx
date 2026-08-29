@@ -4,7 +4,7 @@ import { Gauge, Shield, Award, Users } from "lucide-react";
 export default function S2_Intro() {
   const stats = [
     { label: "SIGNATURE EXPERIENCES", val: "10+", sub: "Motorsport, Dining & Arcade" },
-    { label: "ANNUAL DESTINATION CAPACITY", val: "50,000+", sub: "Chikkaballapura Corridor" },
+    { label: "ANNUAL DESTINATION CAPACITY", val: "50,000+", sub: "Malur, Kolar Corridor" },
     { label: "PANORAMIC VANTAGE ANGLE", val: "360°", sub: "Elevated Sky Deck" },
     { label: "BANQUET & RETREAT CAPACITY", val: "200+", sub: "Modular Event Ballrooms" },
   ];
@@ -27,7 +27,7 @@ export default function S2_Intro() {
 
           <div className="lg:col-span-5 text-left space-y-4 text-carbon-300 font-sans text-sm sm:text-base leading-relaxed">
             <p>
-              Located along the scenic Bengaluru–Chikkaballapura highway corridor, 24OURS fuses high-octane motorsport precision with luxury hospitality, creating a world-class playground for drivers, food enthusiasts, and celebration seekers.
+              Located along the scenic Bengaluru–Malur–Kolar highway corridor, 24OURS fuses high-octane motorsport precision with luxury hospitality, creating a world-class playground for drivers, food enthusiasts, and celebration seekers.
             </p>
           </div>
         </div>

@@ -149,7 +149,6 @@ export class BookingService {
                 customerPhone: data.customerPhone.trim(),
                 experienceId: resolvedExperienceId,
                 packageId: resolvedPackageId,
-                experienceName: resolvedExperienceName,
                 date: bookingDate,
                 timeSlot: data.timeSlot,
                 guestCount: data.guests,

@@ -179,7 +179,7 @@ async function runVerification() {
       guests: guestCount,
       customerName: "Rahul Sharma",
       customerEmail: "racer@24ours.com",
-      customerPhone: "+91 98765 43210",
+      customerPhone: "+91 9187194643",
       specialRequests: "VIP Helmets & telemetry printout",
       discountCode: testCouponCode,
     }),
@@ -350,7 +350,7 @@ async function runVerification() {
       guests: 2,
       customerName: "Rahul Sharma",
       customerEmail: "racer@24ours.com",
-      customerPhone: "+91 98765 43210",
+      customerPhone: "+91 9187194643",
     }),
   });
   const jsonErrDate = await resErrDate.json();
@@ -374,7 +374,7 @@ async function runVerification() {
       guests: 1,
       customerName: "Rahul Sharma",
       customerEmail: "racer@24ours.com",
-      customerPhone: "+91 98765 43210",
+      customerPhone: "+91 9187194643",
       discountCode: "NON_EXISTENT_COUPON_XYZ",
     }),
   });
@@ -400,7 +400,7 @@ async function runVerification() {
       guests: 1,
       customerName: "Rahul Sharma",
       customerEmail: "racer@24ours.com",
-      customerPhone: "+91 98765 43210",
+      customerPhone: "+91 9187194643",
       discountCode: expiredCouponCode,
     }),
   });
@@ -426,7 +426,7 @@ async function runVerification() {
       guests: 50, // Capacity is 10 or 12
       customerName: "Rahul Sharma",
       customerEmail: "racer@24ours.com",
-      customerPhone: "+91 98765 43210",
+      customerPhone: "+91 9187194643",
     }),
   });
   const jsonErrCapacity = await resErrCapacity.json();
@@ -448,7 +448,7 @@ async function runVerification() {
       guests: 1,
       customerName: "Rahul Sharma",
       customerEmail: "racer@24ours.com",
-      customerPhone: "+91 98765 43210",
+      customerPhone: "+91 9187194643",
     }),
   });
   const jsonBkForPayErr = await resBkForPayErr.json();

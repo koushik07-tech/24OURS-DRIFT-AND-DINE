@@ -1,0 +1,85 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./test.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "./test-client"
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  phone        String?
+  passwordHash String
+  role         String   @default("USER")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Experience {
+  id              String   @id @default(cuid())
+  slug            String   @unique
+  name            String
+  headline        String
+  category        String
+  description     String
+  durationMinutes Int      @default(30)
+  minAge          Int      @default(12)
+  capacityPerSlot Int      @default(10)
+  basePrice       Float    @default(999.0)
+  posterImageUrl  String?
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Booking {
+  id             String   @id @default(cuid())
+  bookingCode    String   @unique
+  userId         String?
+  customerName   String
+  customerEmail  String
+  customerPhone  String
+  experienceId   String?
+  experienceName String?
+  date           DateTime
+  timeSlot       String
+  guestCount     Int      @default(1)
+  totalAmount    Float
+  bookingStatus  String   @default("CONFIRMED")
+  paymentStatus  String   @default("PENDING")
+  qrCodeUrl      String?
+  notes          String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Payment {
+  id                String   @id @default(cuid())
+  bookingId         String   @unique
+  amount            Float
+  currency          String   @default("INR")
+  razorpayOrderId   String?
+  razorpayPaymentId String?
+  razorpaySignature String?
+  status            String   @default("PENDING")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model Offer {
+  id             String   @id @default(cuid())
+  code           String   @unique
+  name           String
+  discountType   String   @default("PERCENTAGE")
+  discountAmount Float
+  startDate      DateTime
+  endDate        DateTime
+  usageLimit     Int      @default(100)
+  usedCount      Int      @default(0)
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+}

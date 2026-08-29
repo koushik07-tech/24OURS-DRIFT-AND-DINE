@@ -7,30 +7,29 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "prisma generate",
     "prisma:generate": "prisma generate"
   },
   "dependencies": {
     "@prisma/client": "^6.4.1",
     "@react-three/drei": "^10.0.4",
     "@react-three/fiber": "^9.1.0",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.10",
     "bcryptjs": "^3.0.3",
     "clsx": "^2.1.1",
     "framer-motion": "^12.4.7",
     "jsonwebtoken": "^9.0.3",
     "lucide-react": "^0.475.0",
-    "next": "^16.3.3",
+    "next": "15.2.0",
     "qrcode.react": "^4.2.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "resend": "^6.22.1",
+    "resend": "^6.25.0",
     "tailwind-merge": "^3.0.2",
     "three": "^0.174.0",
     "zod": "^3.24.2"
   },
   "devDependencies": {
-    "@types/bcryptjs": "^2.4.6",
-    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^22.13.4",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
@@ -39,10 +38,6 @@
     "postcss": "^8.5.3",
     "prisma": "^6.4.1",
     "tailwindcss": "^3.4.17",
-    "tsx": "^4.23.12",
     "typescript": "^5.7.3"
-  },
-  "prisma": {
-    "seed": "npx tsx prisma/seed.ts"
   }
 }

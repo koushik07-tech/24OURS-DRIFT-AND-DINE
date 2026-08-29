@@ -60,7 +60,7 @@ export default function Navbar({ onOpenJourneyModal }) {
             <BrandLogo size="md" href="/" />
             <div className="hidden xl:block">
               <Badge variant="red" pulse={true} className="text-[10px] py-0.5 px-2">
-                Chikkaballapura
+                Malur, Kolar
               </Badge>
             </div>
           </div>
@@ -172,7 +172,7 @@ export default function Navbar({ onOpenJourneyModal }) {
       {mobileMenuOpen && (
         <div className="lg:hidden bg-brand-black/98 border-b border-white/15 backdrop-blur-2xl px-4 pt-4 pb-8 space-y-4 animate-fadeIn max-h-[85vh] overflow-y-auto">
           <div className="flex items-center justify-between pb-3 border-b border-white/10">
-            <span className="text-xs font-mono text-carbon-400">Chikkaballapura, Karnataka</span>
+            <span className="text-xs font-mono text-carbon-400">Malur, Kolar, Karnataka</span>
             <Badge variant="red" pulse={true} className="text-[10px]">
               Destination Open
             </Badge>

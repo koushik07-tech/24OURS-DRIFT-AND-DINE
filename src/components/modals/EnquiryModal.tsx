@@ -98,7 +98,7 @@ export default function EnquiryModal() {
                   required
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  placeholder="+91 98765 43210"
+                  placeholder="+91 9187194643"
                   className="w-full px-4 py-2.5 bg-carbon-950 border border-white/15 rounded-xl text-white text-sm focus:outline-none focus:border-brand-red"
                 />
               </div>

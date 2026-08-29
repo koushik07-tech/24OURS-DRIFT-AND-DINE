@@ -85,7 +85,12 @@ export class AdminService {
             bookingCode: true,
             customerName: true,
             customerEmail: true,
-            experienceName: true,
+            experience: {
+              select: { name: true },
+            },
+            package: {
+              select: { name: true },
+            },
           },
         },
       },

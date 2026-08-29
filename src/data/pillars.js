@@ -36,7 +36,7 @@ export const pillarsData = [
     key: "03",
     title: "DINE",
     tagline: "DINE ABOVE THE ACTION",
-    description: "A marquee 360° Sky Dining marvel suspended above the arena. Panoramic horizon views of Chikkaballapura paired with curated global cuisine.",
+    description: "A marquee 360° Sky Dining marvel suspended above the arena. Panoramic horizon views of Malur, Kolar paired with curated global cuisine.",
     badge: "Panoramic & Culinary",
     accentColor: "#E10600",
     highlights: [

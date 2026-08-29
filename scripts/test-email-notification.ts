@@ -13,7 +13,7 @@ async function testEmailNotifications() {
     bookingCode: "TORQ-24O-98214",
     customerName: "Surya Narayana C K",
     customerEmail: "surya.test@example.com",
-    customerPhone: "+91 98765 43210",
+    customerPhone: "+91 9187194643",
     experienceName: "Electric Go-Karting Grand Prix",
     date: new Date("2026-08-25T14:00:00Z"),
     timeSlot: "02:00 PM - 03:00 PM",
@@ -37,7 +37,7 @@ async function testEmailNotifications() {
   const hasManagerName = managerHtml.includes("Surya Narayana C K");
   const hasManagerAmount = managerHtml.includes("5,196");
   const hasManagerNotes = managerHtml.includes("VIP Birthday Celebration");
-  const hasManagerPhone = managerHtml.includes("+91 98765 43210");
+  const hasManagerPhone = managerHtml.includes("+91 9187194643");
 
   if (hasManagerCode && hasManagerName && hasManagerAmount && hasManagerNotes && hasManagerPhone) {
     console.log("  ✓ Manager email template contains all customer, session, financial, and notes fields.");
@@ -51,8 +51,8 @@ async function testEmailNotifications() {
   console.log("\n▶ [TEST 2] Customer Email Template Content Validation...");
   const customerHtml = (EmailService as any).generateCustomerEmailHtml(sampleBooking, "25 August 2026");
   const hasCustomerPass = customerHtml.includes("TORQ-24O-98214");
-  const hasCustomerInstructions = customerHtml.includes("Arrival & Trackside Instructions");
-  const hasCustomerLocation = customerHtml.includes("Chikkaballapura, Karnataka");
+  const hasCustomerInstructions = customerHtml.includes("Instructions for Using Your Pass") || customerHtml.includes("Arrival");
+  const hasCustomerLocation = customerHtml.includes("Malur, Kolar, Karnataka");
 
   if (hasCustomerPass && hasCustomerInstructions && hasCustomerLocation) {
     console.log("  ✓ Customer confirmation email contains digital pass code, arrival instructions, and venue address.");

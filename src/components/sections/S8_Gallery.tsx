@@ -1,12 +1,11 @@
 "use client";
 
 import React, { useState } from "react";
-import Image from "next/image";
 import { Image as ImageIcon, Maximize2, X } from "lucide-react";
 import { mediaConfig } from "@/config/media";
 import { GalleryItem } from "@/types";
 
-const categories = ["ALL", "RACING", "RC", "DINING", "EVENTS", "AUTOMOTIVE", "VENUE"];
+const categories = ["ALL", "GO-KARTING", "RESTAURANT", "RC RACING", "EVENTS", "AUTOMOTIVE"];
 
 export default function S8_Gallery() {
   const [activeCategory, setActiveCategory] = useState("ALL");
@@ -23,12 +22,12 @@ export default function S8_Gallery() {
         {/* Section Header */}
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 text-left">
           <div className="space-y-3">
-            <span className="px-3.5 py-1 rounded-full text-xs font-mono bg-brand-red/20 text-brand-red border border-brand-red/40 uppercase font-bold flex items-center gap-1.5 w-fit shadow-glow-red">
+            <span className="px-3 py-1 rounded-full text-xs font-mono bg-brand-red/20 text-brand-red border border-brand-red/40 uppercase font-bold flex items-center gap-1.5 w-fit">
               <ImageIcon className="w-3.5 h-3.5" />
-              Curated Visual Archive
+              Visual Archive
             </span>
             <h2 className="text-3xl sm:text-5xl lg:text-6xl font-display font-black uppercase text-white tracking-tight">
-              EXPERIENCE <span className="text-brand-red">GALLERY.</span>
+              EXPERIENCE GALLERY.
             </h2>
             <p className="text-sm sm:text-base text-carbon-300 font-sans max-w-xl leading-relaxed">
               Motorsport telemetry moments, panoramic horizon views, and grand celebration memories captured at 24OURS.
@@ -54,19 +53,17 @@ export default function S8_Gallery() {
         </div>
 
         {/* Gallery Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {filtered.map((item) => (
             <div
               key={item.id}
               onClick={() => setSelectedItem(item)}
-              className="relative rounded-3xl bg-carbon-900 border border-white/10 overflow-hidden group cursor-pointer aspect-video sm:aspect-square"
+              className="relative rounded-3xl bg-carbon-900 border border-white/10 overflow-hidden group cursor-pointer aspect-video sm:aspect-square lg:aspect-video"
             >
-              <Image
+              <img
                 src={item.src}
                 alt={item.alt}
-                fill
-                className="object-cover group-hover:scale-110 transition-transform duration-700"
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-750"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-carbon-950 via-carbon-950/20 to-transparent opacity-80 group-hover:opacity-95 transition-opacity" />
 
@@ -78,7 +75,7 @@ export default function S8_Gallery() {
                 <span className="text-[10px] font-mono text-brand-red uppercase tracking-wider font-bold">
                   {item.category}
                 </span>
-                <h4 className="text-sm sm:text-base font-display font-bold text-white uppercase leading-tight">
+                <h4 className="text-base font-display font-bold text-white uppercase">
                   {item.title}
                 </h4>
               </div>
@@ -105,15 +102,11 @@ export default function S8_Gallery() {
               <X className="w-5 h-5" />
             </button>
 
-            <div className="relative w-full h-[60vh] rounded-2xl overflow-hidden mt-6">
-              <Image
-                src={selectedItem.src}
-                alt={selectedItem.alt}
-                fill
-                className="object-contain"
-                sizes="100vw"
-              />
-            </div>
+            <img
+              src={selectedItem.src}
+              alt={selectedItem.alt}
+              className="w-full max-h-[70vh] object-contain rounded-2xl"
+            />
 
             <div className="pt-4 flex items-center justify-between border-t border-white/10 mt-4 text-left">
               <div>
@@ -127,4 +120,3 @@ export default function S8_Gallery() {
     </section>
   );
 }
-

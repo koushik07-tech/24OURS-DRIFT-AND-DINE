@@ -38,11 +38,15 @@ export default function Footer({ onOpenJourneyModal }) {
               </div>
               <div className="flex items-center gap-2">
                 <Phone className="w-3.5 h-3.5 text-brand-red shrink-0" />
-                <span>+91 98765 43210 / +91 80 2400 2400</span>
+                <a href="tel:+919187194643" className="hover:text-white transition-colors">
+                  +91 9187194643
+                </a>
               </div>
               <div className="flex items-center gap-2">
                 <Mail className="w-3.5 h-3.5 text-brand-red shrink-0" />
-                <span>paddock@24oursdriftanddine.com</span>
+                <a href="mailto:24ourschalukya@gmail.com" className="hover:text-white transition-colors">
+                  24ourschalukya@gmail.com
+                </a>
               </div>
             </div>
           </div>
@@ -123,7 +127,7 @@ export default function Footer({ onOpenJourneyModal }) {
         {/* Bottom Legal Tier */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-carbon-400 font-mono text-[11px]">
           <div>
-            <p>© {currentYear} 24OURS — Drift and Dine. All rights reserved. Chikkaballapura, Karnataka, India.</p>
+            <p>© {currentYear} 24OURS — Drift and Dine. All rights reserved. Malur, Kolar, Karnataka, India.</p>
           </div>
 
           <div className="flex flex-wrap items-center gap-4 sm:gap-6">

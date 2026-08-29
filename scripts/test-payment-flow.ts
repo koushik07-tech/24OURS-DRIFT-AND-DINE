@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import { prisma } from "../src/lib/prisma";
 import { BookingService } from "../src/lib/services/booking.service";
 import { PaymentService } from "../src/lib/services/payment.service";
@@ -43,7 +44,7 @@ async function runTests() {
       guests: 2,
       customerName: "Customer Alpha",
       customerEmail: "alpha_test@example.com",
-      customerPhone: "+919876543210",
+      customerPhone: "+919187194643",
     },
     userAlpha.id
   );
@@ -143,11 +144,15 @@ async function runTests() {
   // ------------------------------------------------------------------------
   console.log("[TEST 6] Pass Issuance: Successful payment issues digital boarding pass...");
   const payId1 = `pay_auth_${Date.now()}`;
+  const validSig1 = process.env.RAZORPAY_KEY_SECRET
+    ? crypto.createHmac("sha256", process.env.RAZORPAY_KEY_SECRET).update(`${orderRes.orderId}|${payId1}`).digest("hex")
+    : "simulated_dev_signature";
+
   await PaymentService.verifyPayment({
     bookingId: b1.id,
     razorpayOrderId: orderRes.orderId,
     razorpayPaymentId: payId1,
-    razorpaySignature: "simulated_dev_signature",
+    razorpaySignature: validSig1,
   });
 
   // Allow background async email dispatches to complete
@@ -169,7 +174,7 @@ async function runTests() {
     bookingId: b1.id,
     razorpayOrderId: orderRes.orderId,
     razorpayPaymentId: payId1,
-    razorpaySignature: "simulated_dev_signature",
+    razorpaySignature: validSig1,
   });
 
   const b1After = await prisma.booking.findUnique({ where: { id: b1.id } });
@@ -216,7 +221,7 @@ async function runTests() {
     bookingId: b1.id,
     razorpayOrderId: orderRes.orderId,
     razorpayPaymentId: payId1,
-    razorpaySignature: "simulated_dev_signature",
+    razorpaySignature: validSig1,
   });
 
   if (!idemRes.alreadyVerified) throw new Error("TEST 10 FAILED: Duplicate event not flagged as alreadyVerified");

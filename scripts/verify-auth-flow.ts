@@ -291,7 +291,7 @@ async function runAuthVerification() {
       guests: 1,
       customerName: testName,
       customerEmail: testEmail,
-      customerPhone: "+91 98765 43210",
+      customerPhone: "+91 9187194643",
     }),
   });
   const jsonBk = await resBk.json();
