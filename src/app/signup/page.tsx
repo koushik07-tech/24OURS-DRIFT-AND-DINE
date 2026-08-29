@@ -8,20 +8,41 @@ import { useAuth } from "@/context/AuthContext";
 
 export default function SignupPage() {
   const router = useRouter();
-  const { login, isLoading } = useAuth();
+  const { register, isLoading } = useAuth();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [agreed, setAgreed] = useState(true);
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!agreed) return;
+    setError("");
 
-    await login(email, "USER");
-    router.push("/dashboard");
+    if (!agreed) {
+      setError("Please agree to the Terms of Service to continue.");
+      return;
+    }
+
+    const username = email.split("@")[0].replace(/[^a-zA-Z0-9_-]/g, "") || "racer_" + Date.now();
+
+    try {
+      await register({
+        name,
+        username,
+        email,
+        phone,
+        password,
+      });
+    } catch (err: any) {
+      setError(err?.message || "Registration failed. Please try again.");
+      return;
+    }
+
+    // Hard redirect guarantees clean cookie transmission and prevents React 19 Error #460
+    window.location.href = "/dashboard";
   };
 
   return (
@@ -39,6 +60,12 @@ export default function SignupPage() {
             Register to record personal lap times and reserve digital destination passes.
           </p>
         </div>
+
+        {error && (
+          <div className="p-3 rounded-lg bg-red-950/60 border border-brand-red/50 text-red-300 text-xs font-mono">
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>

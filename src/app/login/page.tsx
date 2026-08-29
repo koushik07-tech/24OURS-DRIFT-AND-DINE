@@ -23,26 +23,36 @@ export default function LoginPage() {
       return;
     }
 
+    let targetUrl = "/dashboard";
     try {
-      const res = await login(email);
-      if (res.user.role === "ADMIN") {
-        router.push("/admin");
-      } else {
-        router.push("/dashboard");
-      }
-    } catch {
-      setError("Invalid credentials. Please try again.");
+      const res = await login(email, password);
+      targetUrl = res.user.role === "ADMIN" ? "/admin" : "/dashboard";
+    } catch (err: any) {
+      setError(err?.message || "Invalid credentials. Please try again.");
+      return;
     }
+
+    // Hard redirect guarantees clean cookie transmission and prevents React 19 Error #460
+    window.location.href = targetUrl;
   };
 
   const handleDemoAccess = async (role: "USER" | "ADMIN") => {
     const demoEmail = role === "ADMIN" ? "admin@24ours.com" : "racer@24ours.com";
-    const res = await login(demoEmail, role);
-    if (role === "ADMIN") {
-      router.push("/admin");
-    } else {
-      router.push("/dashboard");
+    const demoPassword = role === "ADMIN" ? "AdminPassword123!" : "RacerPassword123!";
+    setEmail(demoEmail);
+    setPassword(demoPassword);
+    setError("");
+
+    const targetUrl = role === "ADMIN" ? "/admin" : "/dashboard";
+    try {
+      await login(demoEmail, demoPassword);
+    } catch (err: any) {
+      setError(err?.message || "Demo login failed.");
+      return;
     }
+
+    // Hard redirect guarantees clean cookie transmission and prevents React 19 Error #460
+    window.location.href = targetUrl;
   };
 
   return (

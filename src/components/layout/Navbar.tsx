@@ -54,13 +54,13 @@ export default function Navbar() {
           {/* Desktop Nav Links */}
           <nav className="hidden lg:flex items-center gap-1 xl:gap-1.5 px-3 py-1.5 rounded-full bg-carbon-900/80 border border-white/10 backdrop-blur-md">
             {siteConfig.navLinks.map((link) => (
-              <a
+              <Link
                 key={link.name}
                 href={link.href}
                 className="px-3.5 py-1.5 text-xs font-mono uppercase tracking-wider rounded-full text-carbon-300 hover:text-white hover:bg-white/10 transition-colors"
               >
                 {link.name}
-              </a>
+              </Link>
             ))}
           </nav>
 
@@ -153,14 +153,14 @@ export default function Navbar() {
         <div className="lg:hidden bg-brand-black/98 border-b border-white/15 backdrop-blur-2xl px-4 pt-4 pb-8 space-y-4 animate-fadeIn">
           <nav className="flex flex-col space-y-1">
             {siteConfig.navLinks.map((link) => (
-              <a
+              <Link
                 key={link.name}
                 href={link.href}
                 onClick={() => setMobileMenuOpen(false)}
                 className="px-4 py-3 rounded-lg text-sm font-heading font-semibold uppercase tracking-wider text-carbon-200 hover:text-white hover:bg-carbon-850"
               >
                 {link.name}
-              </a>
+              </Link>
             ))}
           </nav>
 
@@ -174,13 +174,34 @@ export default function Navbar() {
             >
               BOOK NOW
             </button>
-            <Link
-              href="/login"
-              onClick={() => setMobileMenuOpen(false)}
-              className="w-full py-3 rounded-xl bg-carbon-850 border border-white/10 text-white font-mono text-xs font-bold uppercase text-center"
-            >
-              Driver Login / Register
-            </Link>
+            {isAuthenticated ? (
+              <div className="grid grid-cols-2 gap-2">
+                <Link
+                  href="/dashboard"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="py-3 text-center rounded-xl bg-carbon-850 border border-white/10 text-white font-mono text-xs font-bold uppercase"
+                >
+                  Dashboard
+                </Link>
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    logout();
+                  }}
+                  className="py-3 text-center rounded-xl bg-carbon-850 border border-white/10 text-red-400 font-mono text-xs font-bold uppercase"
+                >
+                  Sign Out
+                </button>
+              </div>
+            ) : (
+              <Link
+                href="/login"
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-full py-3 rounded-xl bg-carbon-850 border border-white/10 text-white font-mono text-xs font-bold uppercase text-center"
+              >
+                Driver Login / Register
+              </Link>
+            )}
           </div>
         </div>
       )}

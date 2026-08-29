@@ -3,6 +3,15 @@ import { NextRequest, NextResponse } from "next/server";
 const COOKIE_NAME = "24ours_auth_token";
 const AUTH_SECRET = process.env.AUTH_SECRET || "your-super-secret-jwt-key-change-in-production-min-32-chars";
 
+// Helper to decode Base64Url string in Edge runtime with proper padding
+function base64UrlDecode(b64url: string): string {
+  let b64 = b64url.replace(/-/g, "+").replace(/_/g, "/");
+  while (b64.length % 4 !== 0) {
+    b64 += "=";
+  }
+  return atob(b64);
+}
+
 // Helper to cryptographically verify HMAC-SHA256 JWT in Edge runtime
 async function verifyJwtInEdge(token: string, secret: string): Promise<{ userId?: string; email?: string; role?: string; exp?: number } | null> {
   try {
@@ -11,7 +20,7 @@ async function verifyJwtInEdge(token: string, secret: string): Promise<{ userId?
     const [headerB64, payloadB64, signatureB64] = parts;
     
     // 1. Decode & validate payload structure and expiration
-    const payloadStr = atob(payloadB64.replace(/-/g, "+").replace(/_/g, "/"));
+    const payloadStr = base64UrlDecode(payloadB64);
     const payload = JSON.parse(payloadStr);
     if (!payload.userId || !payload.exp || payload.exp * 1000 < Date.now()) {
       return null;
@@ -28,7 +37,7 @@ async function verifyJwtInEdge(token: string, secret: string): Promise<{ userId?
       ["verify"]
     );
 
-    const binSig = atob(signatureB64.replace(/-/g, "+").replace(/_/g, "/"));
+    const binSig = base64UrlDecode(signatureB64);
     const sigBytes = new Uint8Array(binSig.length);
     for (let i = 0; i < binSig.length; i++) {
       sigBytes[i] = binSig.charCodeAt(i);
@@ -62,19 +71,8 @@ export async function middleware(req: NextRequest) {
   const isAuthenticated = !!user;
   const isAdmin = user?.role === "ADMIN";
 
-  // 3. Define public routes
+  // 3. Define Auth Pages
   const isAuthPage = pathname === "/login" || pathname === "/signup";
-  const isPublicRoute =
-    pathname === "/api/auth/login" ||
-    pathname === "/api/auth/register" ||
-    pathname === "/api/auth/logout" ||
-    pathname.startsWith("/api/verify") ||
-    pathname.startsWith("/verify");
-
-  // Allow public routes
-  if (isPublicRoute) {
-    return NextResponse.next();
-  }
 
   // 4. Handle authenticated users attempting to access /login or /signup
   if (isAuthenticated && isAuthPage) {
@@ -85,7 +83,7 @@ export async function middleware(req: NextRequest) {
     if (isAdmin) {
       return NextResponse.redirect(new URL("/admin", req.url));
     }
-    return NextResponse.redirect(new URL("/", req.url));
+    return NextResponse.redirect(new URL("/dashboard", req.url));
   }
 
   // 5. Handle unauthenticated users accessing /login or /signup
@@ -153,18 +151,16 @@ export async function middleware(req: NextRequest) {
         { success: false, error: { code: "FORBIDDEN", message: "Admin access required." } },
         { status: 403 }
       );
-    }
+      }
     return NextResponse.next();
   }
 
-  // 8. Handle Protected Customer Routes (including "/" homepage, "/dashboard", etc.)
-  if (!isAuthenticated) {
-    // If it's an API route that is not public, return 401
-    if (pathname.startsWith("/api/")) {
-      const res = NextResponse.json(
-        { success: false, error: { code: "UNAUTHORIZED", message: "Authentication required." } },
-        { status: 401 }
-      );
+  // 8. Handle Protected User Dashboard (/dashboard, /dashboard/*)
+  if (pathname.startsWith("/dashboard")) {
+    if (!isAuthenticated) {
+      const loginUrl = new URL("/login", req.url);
+      loginUrl.searchParams.set("redirect", pathname);
+      const res = NextResponse.redirect(loginUrl);
       if (token) {
         res.cookies.set(COOKIE_NAME, "", {
           httpOnly: true,
@@ -177,27 +173,10 @@ export async function middleware(req: NextRequest) {
       }
       return res;
     }
-
-    // For web pages: redirect to login
-    const loginUrl = new URL("/login", req.url);
-    if (pathname !== "/") {
-      loginUrl.searchParams.set("redirect", pathname);
-    }
-    const res = NextResponse.redirect(loginUrl);
-    if (token) {
-      res.cookies.set(COOKIE_NAME, "", {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 0,
-        expires: new Date(0),
-        path: "/",
-      });
-    }
-    return res;
+    return NextResponse.next();
   }
 
-  // Authenticated user accessing valid route
+  // 9. All other routes (Homepage "/", legal pages, booking modal endpoints, public APIs) remain open
   return NextResponse.next();
 }
 
