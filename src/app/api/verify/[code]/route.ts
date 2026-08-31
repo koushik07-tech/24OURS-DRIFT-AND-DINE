@@ -15,6 +15,12 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ code
     const booking = await prisma.booking.findUnique({
       where: { bookingCode: code.trim().toUpperCase() },
       include: {
+        experience: {
+          select: { name: true },
+        },
+        package: {
+          select: { name: true },
+        },
         payment: {
           select: {
             status: true,
@@ -45,7 +51,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ code
     // Redacted privacy-safe public verification payload
     const safeData = {
       bookingCode: booking.bookingCode,
-      experienceName: booking.experienceName,
+      experienceName: booking.experience?.name || booking.package?.name || "Flagship Experience",
       date: booking.date,
       timeSlot: booking.timeSlot,
       guestCount: booking.guestCount,
@@ -58,7 +64,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ code
         ? "RESERVATION CANCELLED"
         : "UNVERIFIED / PENDING PAYMENT",
       verifiedAt: new Date().toISOString(),
-      location: "24OURS Pit-Lane & Dining Paddock, Chikkaballapura, Karnataka",
+      location: "24OURS Pit-Lane & Dining Paddock, Malur, Kolar, Karnataka",
     };
 
     return NextResponse.json({

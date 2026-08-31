@@ -149,7 +149,6 @@ export class BookingService {
                 customerPhone: data.customerPhone.trim(),
                 experienceId: resolvedExperienceId,
                 packageId: resolvedPackageId,
-                experienceName: resolvedExperienceName,
                 date: bookingDate,
                 timeSlot: data.timeSlot,
                 guestCount: data.guests,
@@ -310,7 +309,7 @@ export class BookingService {
       throw new Error("CANNOT_CANCEL_COMPLETED: Completed bookings cannot be cancelled.");
     }
 
-    return prisma.booking.update({
+    const updated = await prisma.booking.update({
       where: { id: booking.id },
       data: {
         bookingStatus: BookingStatus.CANCELLED,
@@ -321,6 +320,13 @@ export class BookingService {
         payment: true,
       },
     });
+
+    // Dispatch cancellation email asynchronously
+    EmailService.sendBookingCancellationEmail(updated.id).catch((err) => {
+      console.error("[BookingService] Failed to dispatch cancellation email:", err);
+    });
+
+    return updated;
   }
 }
 

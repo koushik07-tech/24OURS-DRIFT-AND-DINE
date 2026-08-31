@@ -9,10 +9,10 @@ router.get('/', (req, res) => {
     tagline: "RACE. PLAY. DINE. CELEBRATE.",
     phase: "Pre-Launch & Construction",
     location: {
-      city: "malur",
+      city: "Malur, Kolar",
       state: "Karnataka",
       country: "India",
-      coordinates: "13.4325° N, 77.7275° E",
+      coordinates: "13.0039° N, 77.9406° E",
     },
     status: "Healthy",
     timestamp: new Date().toISOString(),

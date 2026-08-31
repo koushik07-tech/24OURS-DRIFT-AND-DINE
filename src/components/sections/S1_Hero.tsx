@@ -45,7 +45,7 @@ export default function S1_Hero() {
       </div>
 
       {/* Hero Central Typography */}
-      <div className="max-w-5xl mx-auto text-center my-auto relative z-10 w-full space-y-8 py-8">
+      <div className="max-w-6xl mx-auto text-center my-auto relative z-10 w-full space-y-4 sm:space-y-6 md:space-y-7 py-2 sm:py-4 md:py-6">
         
         {/* Top Badges */}
         <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3">
@@ -59,28 +59,30 @@ export default function S1_Hero() {
         </div>
 
         {/* Cinematic Headline */}
-        <div className="space-y-2">
-          <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-display font-black tracking-tight text-white uppercase leading-[0.88]">
-            24OURS<br />
-            <span className="bg-gradient-to-r from-brand-red via-red-400 to-white bg-clip-text text-transparent">
+        <div className="space-y-1 sm:space-y-2">
+          <h1 className="font-display font-black tracking-tight text-white uppercase text-center mx-auto max-w-full">
+            <span className="block text-[clamp(2.75rem,8.5vw,7.5rem)] leading-[0.95] tracking-tight">
+              24OURS
+            </span>
+            <span className="block bg-gradient-to-r from-brand-red via-red-400 to-white bg-clip-text text-transparent text-[clamp(1.4rem,4.4vw,3.9rem)] leading-[1.12] tracking-normal sm:tracking-tight mt-1 sm:mt-2">
               DRIFT. DINE. EXPERIENCE.
             </span>
           </h1>
 
-          <p className="text-xs sm:text-sm md:text-base font-mono tracking-[0.3em] sm:tracking-[0.45em] text-brand-red uppercase font-semibold pt-3">
+          <p className="text-[10px] sm:text-xs md:text-sm font-mono tracking-[0.2em] sm:tracking-[0.35em] md:tracking-[0.45em] text-brand-red uppercase font-semibold pt-1 sm:pt-2">
             {siteConfig.legalName}
           </p>
         </div>
 
-        <p className="text-carbon-200 text-sm sm:text-base md:text-lg max-w-2xl mx-auto font-sans leading-relaxed">
-          {siteConfig.subheadline}
+        <p className="text-carbon-200 text-xs sm:text-sm md:text-base max-w-2xl mx-auto font-sans leading-relaxed px-2">
+          South India’s premier entertainment sports hub. High-speed electric karting, suspended 360° horizon dining, competitive RC arena, and grand banquet architecture.
         </p>
 
         {/* Action Hooks (Strictly No Pricing) */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 pt-2 sm:pt-3">
           <button
             onClick={() => openBookingModal("Electric Go-Karting Grand Prix")}
-            className="w-full sm:w-auto px-8 py-4 rounded-xl bg-brand-red text-white font-heading font-bold text-sm uppercase tracking-wider hover:bg-brand-redDark shadow-glow-red transition-all flex items-center justify-center gap-2"
+            className="w-full sm:w-auto px-7 py-3.5 sm:px-8 sm:py-4 rounded-xl bg-brand-red text-white font-heading font-bold text-xs sm:text-sm uppercase tracking-wider hover:bg-brand-redDark shadow-glow-red transition-all flex items-center justify-center gap-2"
           >
             <Calendar className="w-4 h-4" />
             <span>BOOK NOW</span>
@@ -88,9 +90,9 @@ export default function S1_Hero() {
 
           <a
             href="#karting"
-            className="w-full sm:w-auto px-8 py-4 rounded-xl bg-carbon-900 border border-white/15 text-white font-heading font-bold text-sm uppercase tracking-wider hover:border-brand-red hover:bg-carbon-850 transition-all flex items-center justify-center gap-2"
+            className="w-full sm:w-auto px-7 py-3.5 sm:px-8 sm:py-4 rounded-xl bg-carbon-900 border border-white/15 text-white font-heading font-bold text-xs sm:text-sm uppercase tracking-wider hover:border-brand-red hover:bg-carbon-850 transition-all flex items-center justify-center gap-2"
           >
-            <span>EXPLORE</span>
+            <span>EXPLORE EXPERIENCES</span>
             <ArrowRight className="w-4 h-4 text-brand-red" />
           </a>
         </div>

@@ -36,7 +36,7 @@ async function runProductionSmokeTests() {
       guests: 2,
       customerName: "Smoke Customer 1",
       customerEmail: "smoke_user1@example.com",
-      customerPhone: "+919876543210",
+      customerPhone: "+919187194643",
     },
     user1.id
   );

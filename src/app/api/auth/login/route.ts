@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
           success: false,
           error: {
             code: "INVALID_CREDENTIALS",
-            message: "Invalid email or password.",
+            message: "Invalid username or password.",
           },
         },
         { status: 401 }

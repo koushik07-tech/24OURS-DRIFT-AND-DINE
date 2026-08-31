@@ -80,7 +80,7 @@ export default function JourneyModal({ isOpen, onClose }) {
       {!isSubmitted ? (
         <form onSubmit={handleSubmit} className="space-y-5">
           <p className="text-sm text-carbon-300">
-            Be the first to see behind-the-scenes construction milestones, track unveilings, and exclusive invitations before the public opening in Chikkaballapura.
+            Be the first to see behind-the-scenes construction milestones, track unveilings, and exclusive invitations before the public opening in Malur, Kolar, Karnataka.
           </p>
 
           {errorMessage && (

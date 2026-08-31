@@ -1,4 +1,4 @@
-export type Role = "USER" | "ADMIN" | "STAFF";
+export type Role = "USER" | "ADMIN";
 
 export interface User {
   id: string;
@@ -32,28 +32,14 @@ export interface Booking {
   date: string;
   timeSlot: string;
   guests: number;
-  guestCount?: number;
-  totalAmount?: number;
   customerName: string;
   customerEmail: string;
   customerPhone: string;
   status: "CONFIRMED" | "PENDING" | "COMPLETED" | "CANCELLED";
-  bookingStatus?: string;
-  paymentStatus?: string;
-  payment?: {
-    id?: string;
-    amount?: number;
-    currency?: string;
-    razorpayOrderId?: string | null;
-    razorpayPaymentId?: string | null;
-    status?: string;
-  } | null;
-  qrData?: string;
-  qrCodeUrl?: string | null;
+  qrData: string;
   createdAt: string;
   specialRequests?: string;
 }
-
 
 export interface EventEnquiry {
   id: string;

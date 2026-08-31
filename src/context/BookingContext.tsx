@@ -1,9 +1,8 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 import { Booking, EventEnquiry } from "@/types";
-import { bookingsApi } from "@/lib/api/bookings";
-import { enquiriesApi } from "@/lib/api/enquiries";
+import { generateBookingReference } from "@/lib/utils";
 
 interface BookingContextType {
   isBookingOpen: boolean;
@@ -16,9 +15,7 @@ interface BookingContextType {
   setSelectedExperienceName: (name: string) => void;
   allBookings: Booking[];
   createBooking: (details: {
-    experienceName?: string;
-    experienceId?: string;
-    packageId?: string;
+    experienceName: string;
     date: string;
     timeSlot: string;
     guests: number;
@@ -26,24 +23,11 @@ interface BookingContextType {
     customerEmail: string;
     customerPhone: string;
     specialRequests?: string;
-    discountCode?: string;
   }) => Promise<Booking>;
   allEnquiries: EventEnquiry[];
-  createEnquiry: (details: {
-    name: string;
-    email: string;
-    phone: string;
-    eventType: string;
-    expectedGuests: string | number;
-    preferredDate?: string;
-    preferredTime?: string;
-    requirements?: string;
-    message?: string;
-  }) => Promise<EventEnquiry>;
+  createEnquiry: (details: Omit<EventEnquiry, "id" | "createdAt">) => Promise<EventEnquiry>;
   activeBookingPass: Booking | null;
   setActiveBookingPass: (b: Booking | null) => void;
-  refreshBookings: () => Promise<void>;
-  refreshEnquiries: () => Promise<void>;
 }
 
 const BookingContext = createContext<BookingContextType | null>(null);
@@ -51,38 +35,73 @@ const BookingContext = createContext<BookingContextType | null>(null);
 export function BookingProvider({ children }: { children: React.ReactNode }) {
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [isEnquiryOpen, setIsEnquiryOpen] = useState(false);
-  const [selectedExperienceName, setSelectedExperienceName] = useState("Electric Go-Karting Grand Prix");
+  const [selectedExperienceName, setSelectedExperienceName] = useState("Go-Karting Grand Prix");
   const [activeBookingPass, setActiveBookingPass] = useState<Booking | null>(null);
 
-  const [allBookings, setAllBookings] = useState<Booking[]>([]);
-  const [allEnquiries, setAllEnquiries] = useState<EventEnquiry[]>([]);
-
-  const refreshBookings = useCallback(async () => {
+  const [allBookings, setAllBookings] = useState<Booking[]>(() => {
     try {
-      const res = await bookingsApi.getBookings();
-      if (res.success && res.data) {
-        setAllBookings(res.data);
-      }
-    } catch (err) {
-      console.error("Failed to load bookings:", err);
-    }
-  }, []);
+      const saved = localStorage.getItem("24ours_next_bookings");
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return [
+      {
+        id: "bk-101",
+        bookingCode: "TORQ-24O-98214",
+        experienceName: "Electric Go-Karting Grand Prix",
+        date: "2026-09-15",
+        timeSlot: "17:00 - 18:00 (Sunset Slot)",
+        guests: 2,
+        customerName: "Rahul Sharma",
+        customerEmail: "rahul@example.com",
+        customerPhone: "+91 9187194643",
+        status: "CONFIRMED",
+        qrData: "24OURS-PASS:TORQ-24O-98214:2026-09-15",
+        createdAt: "2026-08-20T10:30:00Z",
+      },
+      {
+        id: "bk-102",
+        bookingCode: "TORQ-24O-74621",
+        experienceName: "360° Sky Dining Deck",
+        date: "2026-09-22",
+        timeSlot: "19:30 - 21:00 (Lounge Slot)",
+        guests: 4,
+        customerName: "Ananya Verma",
+        customerEmail: "ananya@example.com",
+        customerPhone: "+91 98765 43211",
+        status: "CONFIRMED",
+        qrData: "24OURS-PASS:TORQ-24O-74621:2026-09-22",
+        createdAt: "2026-08-22T14:15:00Z",
+      },
+    ];
+  });
 
-  const refreshEnquiries = useCallback(async () => {
+  const [allEnquiries, setAllEnquiries] = useState<EventEnquiry[]>(() => {
     try {
-      const res = await enquiriesApi.getAllEnquiries();
-      if (res.success && res.data) {
-        setAllEnquiries(res.data);
-      }
-    } catch {
-      // ignore if non-admin
-    }
-  }, []);
+      const saved = localStorage.getItem("24ours_next_enquiries");
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return [
+      {
+        id: "enq-01",
+        name: "Vikramaditya Rao",
+        email: "vikram@techcorp.com",
+        phone: "+91 98765 11223",
+        eventType: "Corporate Grand Prix & Offsite",
+        expectedGuests: "60",
+        preferredDate: "2026-10-05",
+        requirements: "Circuit tournament with podium ceremony and 360 sky dining buffet dinner.",
+        createdAt: "2026-08-23T11:00:00Z",
+      },
+    ];
+  });
 
   useEffect(() => {
-    refreshBookings();
-    refreshEnquiries();
-  }, [refreshBookings, refreshEnquiries]);
+    localStorage.setItem("24ours_next_bookings", JSON.stringify(allBookings));
+  }, [allBookings]);
+
+  useEffect(() => {
+    localStorage.setItem("24ours_next_enquiries", JSON.stringify(allEnquiries));
+  }, [allEnquiries]);
 
   const openBookingModal = (defaultExp?: string) => {
     if (defaultExp) setSelectedExperienceName(defaultExp);
@@ -98,9 +117,7 @@ export function BookingProvider({ children }: { children: React.ReactNode }) {
   const closeEnquiryModal = () => setIsEnquiryOpen(false);
 
   const createBooking = async (details: {
-    experienceName?: string;
-    experienceId?: string;
-    packageId?: string;
+    experienceName: string;
     date: string;
     timeSlot: string;
     guests: number;
@@ -108,35 +125,28 @@ export function BookingProvider({ children }: { children: React.ReactNode }) {
     customerEmail: string;
     customerPhone: string;
     specialRequests?: string;
-    discountCode?: string;
   }) => {
-    const res = await bookingsApi.createBooking(details);
-    if (!res.success || !res.data) {
-      throw new Error(res.error?.message || "Failed to create booking reservation.");
+    const res = await fetch("/api/bookings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(details),
+    });
+    const json = await res.json();
+    if (!res.ok || !json.success) {
+      throw new Error(json.error?.message || "Failed to create booking reservation.");
     }
-
-    const newBooking = res.data;
+    const newBooking = json.data;
     setAllBookings((prev) => [newBooking, ...prev]);
-    setActiveBookingPass(newBooking);
     return newBooking;
   };
 
-  const createEnquiry = async (details: {
-    name: string;
-    email: string;
-    phone: string;
-    eventType: string;
-    expectedGuests: string | number;
-    preferredDate?: string;
-    preferredTime?: string;
-    requirements?: string;
-    message?: string;
-  }) => {
-    const res = await enquiriesApi.createEnquiry(details);
-    if (!res.success || !res.data) {
-      throw new Error(res.error?.message || "Failed to submit enquiry.");
-    }
-    const newEnq = res.data;
+  const createEnquiry = async (details: Omit<EventEnquiry, "id" | "createdAt">) => {
+    await new Promise((res) => setTimeout(res, 600));
+    const newEnq: EventEnquiry = {
+      id: "enq-" + Date.now(),
+      ...details,
+      createdAt: new Date().toISOString(),
+    };
     setAllEnquiries((prev) => [newEnq, ...prev]);
     return newEnq;
   };
@@ -158,8 +168,6 @@ export function BookingProvider({ children }: { children: React.ReactNode }) {
         createEnquiry,
         activeBookingPass,
         setActiveBookingPass,
-        refreshBookings,
-        refreshEnquiries,
       }}
     >
       {children}

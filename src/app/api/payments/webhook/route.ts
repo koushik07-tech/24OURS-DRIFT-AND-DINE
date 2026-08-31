@@ -14,7 +14,14 @@ export async function POST(req: NextRequest) {
     const webhookSignature = req.headers.get("x-razorpay-signature");
     const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET;
 
-    if (!webhookSecret || webhookSecret.includes("placeholder") || webhookSecret.includes("secret")) {
+    const isSecretConfigured = Boolean(
+      webhookSecret &&
+      !webhookSecret.includes("placeholder") &&
+      !webhookSecret.includes("your_") &&
+      !webhookSecret.includes("secret")
+    );
+
+    if (!isSecretConfigured) {
       console.warn("[Razorpay Webhook] Webhook secret not configured or placeholder. Skipping signature verification in dev.");
     } else {
       if (!webhookSignature) {
@@ -22,11 +29,18 @@ export async function POST(req: NextRequest) {
       }
 
       const expectedSignature = crypto
-        .createHmac("sha256", webhookSecret)
+        .createHmac("sha256", webhookSecret!)
         .update(rawBody)
         .digest("hex");
 
-      if (expectedSignature !== webhookSignature) {
+      const expectedBuffer = Buffer.from(expectedSignature, "utf8");
+      const receivedBuffer = Buffer.from(webhookSignature, "utf8");
+
+      const isSignatureValid =
+        expectedBuffer.length === receivedBuffer.length &&
+        crypto.timingSafeEqual(expectedBuffer, receivedBuffer);
+
+      if (!isSignatureValid) {
         console.error("[Razorpay Webhook] Signature verification failed.");
         return NextResponse.json({ success: false, message: "Invalid webhook signature" }, { status: 400 });
       }
@@ -40,6 +54,7 @@ export async function POST(req: NextRequest) {
 
     console.log(`[Razorpay Webhook] Received event: ${event} for payment ${paymentId} / order ${orderId}`);
 
+    // 1. Payment Captured / Order Paid
     if (event === "payment.captured" || event === "order.paid") {
       if (!orderId && !paymentId) {
         return NextResponse.json({ success: true, message: "No payment entity found" });
@@ -72,7 +87,6 @@ export async function POST(req: NextRequest) {
         console.log(`[Razorpay Webhook] Booking ${paymentRecord.booking?.bookingCode} already marked SUCCESS. Skipping.`);
         return NextResponse.json({ success: true, message: "Already processed" });
       }
-
 
       // Prevent duplicate razorpayPaymentId association
       if (paymentId) {
@@ -117,6 +131,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: true, message: "Payment processed successfully" });
     }
 
+    // 2. Payment Failed
     if (event === "payment.failed") {
       if (orderId || paymentId) {
         const paymentRecord = await prisma.payment.findFirst({
@@ -145,6 +160,38 @@ export async function POST(req: NextRequest) {
         }
       }
       return NextResponse.json({ success: true, message: "Payment failure recorded" });
+    }
+
+    // 3. Refund Processed
+    if (event === "refund.processed" || event === "refund.created") {
+      const refundPaymentId = payload.payload?.refund?.entity?.payment_id || paymentId;
+      if (refundPaymentId) {
+        const paymentRecord = await prisma.payment.findFirst({
+          where: { razorpayPaymentId: refundPaymentId },
+          include: { booking: true },
+        });
+
+        if (paymentRecord) {
+          await prisma.$transaction([
+            prisma.payment.update({
+              where: { id: paymentRecord.id },
+              data: { status: PaymentStatus.REFUNDED },
+            }),
+            prisma.booking.update({
+              where: { id: paymentRecord.bookingId },
+              data: {
+                paymentStatus: PaymentStatus.REFUNDED,
+                bookingStatus: BookingStatus.REFUNDED,
+              },
+            }),
+          ]);
+
+          EmailService.sendBookingCancellationEmail(paymentRecord.bookingId, "Refund processed via payment gateway").catch((err) => {
+            console.error("[Razorpay Webhook] Failed to dispatch refund notification:", err);
+          });
+        }
+      }
+      return NextResponse.json({ success: true, message: "Refund processed recorded" });
     }
 
     return NextResponse.json({ success: true, message: `Event ${event} acknowledged` });

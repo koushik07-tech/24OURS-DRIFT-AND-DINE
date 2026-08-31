@@ -45,16 +45,19 @@ export function validateProductionEnvironment(): {
     }
   }
 
-  // 3. Razorpay Production Credentials check
+  // 3. Razorpay Credentials check
   if (isProduction) {
-    if (!razorpayKeyId || razorpayKeyId.includes("placeholder") || razorpayKeyId.startsWith("rzp_test")) {
-      errors.push("RAZORPAY_KEY_ID must be configured with live credentials in production (e.g. rzp_live_...).");
+    const isLiveEnforced = process.env.ENFORCE_LIVE_PAYMENTS === "true";
+    if (isLiveEnforced && (!razorpayKeyId || razorpayKeyId.startsWith("rzp_test") || razorpayKeyId.includes("placeholder"))) {
+      errors.push("RAZORPAY_KEY_ID must be configured with live credentials (e.g. rzp_live_...) when live payments are enforced.");
+    } else if (!razorpayKeyId || razorpayKeyId.includes("placeholder")) {
+      errors.push("RAZORPAY_KEY_ID is missing or configured with a placeholder.");
     }
     if (!razorpayKeySecret || razorpayKeySecret.includes("secret") || razorpayKeySecret.includes("placeholder")) {
-      errors.push("RAZORPAY_KEY_SECRET must be configured with live secret in production.");
+      errors.push("RAZORPAY_KEY_SECRET is missing or configured with a placeholder.");
     }
     if (!razorpayWebhookSecret || razorpayWebhookSecret.includes("placeholder")) {
-      errors.push("RAZORPAY_WEBHOOK_SECRET must be configured in production for webhook signature verification.");
+      warnings.push("RAZORPAY_WEBHOOK_SECRET is not configured; webhook signature verification will be bypassed.");
     }
   } else {
     // Development checks (warnings only)

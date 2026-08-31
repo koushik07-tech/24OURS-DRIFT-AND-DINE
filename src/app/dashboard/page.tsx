@@ -183,13 +183,12 @@ export default function UserDashboardPage() {
             
             <div className="p-4 rounded-2xl bg-white text-black inline-block my-2">
               <QRCodeSVG
-                value={selectedPass.qrData || selectedPass.qrCodeUrl || `24OURS-PASS:${selectedPass.bookingCode}`}
+                value={selectedPass.qrData}
                 size={140}
                 bgColor="#FFFFFF"
                 fgColor="#0A0A0A"
               />
             </div>
-
 
             <p className="text-[11px] font-mono text-carbon-400">Present this QR code upon arrival at the 24OURS pit lane.</p>
 

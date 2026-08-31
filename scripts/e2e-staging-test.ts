@@ -23,7 +23,7 @@ async function runStagingE2ETestSuite() {
     const regResult = await AuthService.register({
       name: "Staging Test Racer",
       email: testEmail,
-      phone: "+91 98765 43210",
+      phone: "+91 9187194643",
       password: "TestPassword123!",
     });
     console.log(`  ✓ Registered new driver: ${regResult.user.email} (ID: ${regResult.user.id})`);

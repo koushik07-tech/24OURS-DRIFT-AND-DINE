@@ -14,7 +14,7 @@ export const reviewsData = [
     rating: 5,
     experience: "360° Sky Dining",
     date: "VIP Culinary Showcase",
-    comment: "Dining suspended high above the track while watching the sunset over Chikkaballapura is breathtaking. The truffle sliders and craft mocktails were perfection.",
+    comment: "Dining suspended high above the track while watching the sunset over Malur, Kolar is breathtaking. The truffle sliders and craft mocktails were perfection.",
     avatar: "DC",
   },
   {

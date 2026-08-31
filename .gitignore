@@ -29,10 +29,3 @@ out
 .env
 .env.local
 .env.production
-.env.staging
-
-# Test databases & artifacts
-*.db
-*.db-journal
-test-client
-

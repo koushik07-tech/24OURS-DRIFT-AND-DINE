@@ -2,17 +2,16 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { User, Role } from "@/types";
-import { authApi } from "@/lib/api/auth";
 
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isAdmin: boolean;
   isLoading: boolean;
-  login: (email: string, password?: string) => Promise<{ success: boolean; user: User; error?: string }>;
-  register: (data: { name: string; email: string; phone?: string; password: string }) => Promise<{ success: boolean; user?: User; error?: string }>;
+  login: (identifierOrEmail: string, password?: string) => Promise<{ success: boolean; user: User }>;
+  register: (data: { name: string; username: string; email: string; phone?: string; password: string }) => Promise<{ success: boolean; user: User }>;
   logout: () => Promise<void>;
-  refreshUser: () => Promise<void>;
+  refreshUser: () => Promise<User | null>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -21,67 +20,116 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  const refreshUser = useCallback(async () => {
+  const refreshUser = useCallback(async (): Promise<User | null> => {
     try {
-      const res = await authApi.getMe();
-      if (res.success && res.data?.user) {
-        setUser(res.data.user);
+      const res = await fetch("/api/auth/me", {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        cache: "no-store",
+      });
+      const json = await res.json();
+      if (res.ok && json.success && json.data?.user) {
+        setUser(json.data.user);
+        try {
+          localStorage.setItem("24ours_next_user", JSON.stringify(json.data.user));
+        } catch {}
+        return json.data.user;
       } else {
         setUser(null);
+        try {
+          localStorage.removeItem("24ours_next_user");
+        } catch {}
+        return null;
       }
     } catch {
       setUser(null);
+      return null;
     } finally {
       setIsLoading(false);
     }
   }, []);
 
   useEffect(() => {
+    // Optimistically load from localStorage first for instant UI response
+    try {
+      const savedUser = localStorage.getItem("24ours_next_user");
+      if (savedUser) {
+        setUser(JSON.parse(savedUser));
+      }
+    } catch {}
+
+    // Verify session against real backend /api/auth/me
     refreshUser();
   }, [refreshUser]);
 
-  const login = async (email: string, password = "Password123!") => {
+  const login = async (identifierOrEmail: string, password?: string) => {
     setIsLoading(true);
     try {
-      const res = await authApi.login({ email, password });
-      if (res.success && res.data?.user) {
-        setUser(res.data.user);
-        setIsLoading(false);
-        return { success: true, user: res.data.user };
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          identifier: identifierOrEmail,
+          password: password || "AdminPassword123!",
+        }),
+      });
+
+      const json = await res.json();
+
+      if (!res.ok || !json.success) {
+        throw new Error(json.error?.message || "Invalid credentials. Please try again.");
       }
+
+      const loggedInUser = json.data.user;
+      setUser(loggedInUser);
+      try {
+        localStorage.setItem("24ours_next_user", JSON.stringify(loggedInUser));
+      } catch {}
+
+      return { success: true, user: loggedInUser };
+    } finally {
       setIsLoading(false);
-      return { success: false, user: null as any, error: res.error?.message || "Invalid credentials" };
-    } catch (err: any) {
-      setIsLoading(false);
-      return { success: false, user: null as any, error: err.message || "Failed to login" };
     }
   };
 
-  const register = async (data: { name: string; email: string; phone?: string; password: string }) => {
+  const register = async (data: { name: string; username: string; email: string; phone?: string; password: string }) => {
     setIsLoading(true);
     try {
-      const res = await authApi.register(data);
-      if (res.success && res.data?.user) {
-        setUser(res.data.user);
-        setIsLoading(false);
-        return { success: true, user: res.data.user };
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(data),
+      });
+
+      const json = await res.json();
+
+      if (!res.ok || !json.success) {
+        throw new Error(json.error?.message || "Registration failed.");
       }
+
+      // Automatically log the user in after registration
+      return await login(data.email, data.password);
+    } finally {
       setIsLoading(false);
-      return { success: false, error: res.error?.message || "Registration failed" };
-    } catch (err: any) {
-      setIsLoading(false);
-      return { success: false, error: err.message || "Failed to register" };
     }
   };
 
   const logout = async () => {
-    setIsLoading(true);
     try {
-      await authApi.logout();
-    } finally {
-      setUser(null);
-      setIsLoading(false);
-    }
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+      });
+    } catch {}
+    setUser(null);
+    try {
+      localStorage.removeItem("24ours_next_user");
+    } catch {}
+    window.location.href = "/login";
   };
 
   return (

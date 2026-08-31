@@ -32,7 +32,7 @@ export default function S15_CorporateCCC() {
               CORPORATE <span className="text-brand-red">PARTNERSHIPS.</span>
             </h2>
             <p className="text-sm sm:text-base text-carbon-300 font-sans max-w-2xl leading-relaxed">
-              Transform your corporate offsites, annual retreats, and product celebrations into unforgettable high-speed experiences along the Bengaluru–Chikkaballapura highway corridor.
+              Transform your corporate offsites, annual retreats, and product celebrations into unforgettable high-speed experiences along the Bengaluru–Malur–Kolar highway corridor.
             </p>
           </div>
 

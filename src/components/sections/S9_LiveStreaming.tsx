@@ -68,7 +68,7 @@ export default function S9_LiveStreaming() {
                   LIVE ON AIR
                 </span>
                 <span className="px-3 py-1 rounded-full text-[10px] font-mono bg-black/70 text-white border border-white/10 backdrop-blur-md">
-                  PADDOCK CAM 04 • CHIKKABALLAPURA
+                  PADDOCK CAM 04 • MALUR, KOLAR, KARNATAKA
                 </span>
               </div>
 

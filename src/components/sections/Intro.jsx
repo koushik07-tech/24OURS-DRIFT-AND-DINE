@@ -15,7 +15,7 @@ export default function Intro() {
     {
       number: "02",
       title: "360° Elevated Gastronomy",
-      description: "A suspended architectural marvel offering panoramic horizon views of Chikkaballapura paired with curated global cuisine.",
+      description: "A suspended architectural marvel offering panoramic horizon views of Malur, Kolar paired with curated global cuisine.",
       icon: Compass,
     },
     {
@@ -40,7 +40,7 @@ export default function Intro() {
           The Concept & Vision
         </Badge>
       }
-      subtitle="Chikkaballapura, Karnataka"
+      subtitle="Malur, Kolar, Karnataka"
       title="A NEW DESTINATION IS TAKING SHAPE."
       description="Born at the intersection of high-speed motorsport adrenaline and luxury sky-dining hospitality, 24OURS is engineered to redefine how South India races, gathers, dines, and celebrates."
       align="left"
@@ -53,7 +53,7 @@ export default function Intro() {
         {/* Left Column: Vision Manifesto */}
         <div className="lg:col-span-7 space-y-6 text-base sm:text-lg text-carbon-300 font-sans leading-relaxed">
           <p className="text-white font-medium text-lg sm:text-xl leading-relaxed">
-            Located along the scenic highway corridor of Chikkaballapura, <span className="text-white font-bold">24OURS — Drift and Dine</span> is being developed as an integrated, multi-experience entertainment ecosystem.
+            Located along the scenic highway corridor of Malur, Kolar, Karnataka, <span className="text-white font-bold">24OURS — Drift and Dine</span> is being developed as an integrated, multi-experience entertainment ecosystem.
           </p>
           <p>
             Whether you are pushing the limits on precision hairpin racing circuits, dining high above the track on our suspended 360° Sky Deck, or hosting an unforgettable milestone in our grand banquet halls — every square foot is designed for uncompromised excitement and connection.

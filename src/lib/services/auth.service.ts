@@ -1,17 +1,26 @@
 import { prisma } from "@/lib/prisma";
-import { hashPassword, verifyPassword, generateToken, TokenPayload } from "@/lib/auth";
+import { hashPassword, verifyPassword, generateToken } from "@/lib/auth";
 import { Role } from "@prisma/client";
 
 export class AuthService {
-  static async register(data: { name: string; email: string; phone?: string; password: string }) {
+  static async register(data: { name: string; username: string; email: string; phone?: string; password: string }) {
     const normalizedEmail = data.email.trim().toLowerCase();
+    const normalizedUsername = data.username.trim().toLowerCase();
 
-    const existingUser = await prisma.user.findUnique({
+    // Check unique email
+    const existingEmail = await prisma.user.findUnique({
       where: { email: normalizedEmail },
     });
-
-    if (existingUser) {
+    if (existingEmail) {
       throw new Error("EMAIL_EXISTS");
+    }
+
+    // Check unique username
+    const existingUsername = await prisma.user.findUnique({
+      where: { username: normalizedUsername },
+    });
+    if (existingUsername) {
+      throw new Error("USERNAME_EXISTS");
     }
 
     const passwordHash = await hashPassword(data.password);
@@ -19,6 +28,7 @@ export class AuthService {
     const user = await prisma.user.create({
       data: {
         name: data.name.trim(),
+        username: normalizedUsername,
         email: normalizedEmail,
         phone: data.phone?.trim() || null,
         passwordHash,
@@ -27,6 +37,7 @@ export class AuthService {
       select: {
         id: true,
         name: true,
+        username: true,
         email: true,
         phone: true,
         role: true,
@@ -34,21 +45,24 @@ export class AuthService {
       },
     });
 
-    const token = generateToken({
-      userId: user.id,
-      email: user.email,
-      role: user.role,
-      name: user.name,
-    });
-
-    return { user, token };
+    return { user };
   }
 
-  static async login(data: { email: string; password: string }) {
-    const normalizedEmail = data.email.trim().toLowerCase();
+  static async login(data: { identifier?: string; email?: string; username?: string; password: string }) {
+    const rawId = data.identifier || data.email || data.username || "";
+    const normalizedIdentifier = rawId.trim().toLowerCase();
 
-    const user = await prisma.user.findUnique({
-      where: { email: normalizedEmail },
+    if (!normalizedIdentifier || !data.password) {
+      throw new Error("INVALID_CREDENTIALS");
+    }
+
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { email: normalizedIdentifier },
+          { username: normalizedIdentifier },
+        ],
+      },
     });
 
     if (!user) {
@@ -63,6 +77,7 @@ export class AuthService {
     const token = generateToken({
       userId: user.id,
       email: user.email,
+      username: user.username,
       role: user.role,
       name: user.name,
     });
@@ -71,6 +86,7 @@ export class AuthService {
       user: {
         id: user.id,
         name: user.name,
+        username: user.username,
         email: user.email,
         phone: user.phone,
         role: user.role,
@@ -86,6 +102,7 @@ export class AuthService {
       select: {
         id: true,
         name: true,
+        username: true,
         email: true,
         phone: true,
         role: true,
@@ -100,3 +117,4 @@ export class AuthService {
     return user;
   }
 }
+

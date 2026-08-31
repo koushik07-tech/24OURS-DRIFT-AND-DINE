@@ -5,7 +5,23 @@ import { EmailService } from "./email.service";
 
 export class PaymentService {
   /**
-   * Creates a Razorpay order for a booking reservation.
+   * Helper to determine whether valid Razorpay credentials (Test or Live) are present.
+   */
+  static isRazorpayConfigured(): boolean {
+    const keyId = process.env.RAZORPAY_KEY_ID;
+    const keySecret = process.env.RAZORPAY_KEY_SECRET;
+    return Boolean(
+      keyId &&
+      !keyId.includes("placeholder") &&
+      !keyId.includes("your_") &&
+      keySecret &&
+      !keySecret.includes("placeholder") &&
+      !keySecret.includes("your_")
+    );
+  }
+
+  /**
+   * Creates an official Razorpay order for a booking reservation.
    * Derives order amount directly from server-side booking.totalAmount (INR converted to Paise).
    */
   static async createOrder(bookingId: string) {
@@ -27,58 +43,44 @@ export class PaymentService {
     const amountInPaise = Math.round(booking.totalAmount * 100);
     const keyId = process.env.RAZORPAY_KEY_ID;
     const keySecret = process.env.RAZORPAY_KEY_SECRET;
-    const isProduction = process.env.NODE_ENV === "production";
 
-
-    // Validate credentials
-    const isConfigured = Boolean(
-      keyId &&
-      !keyId.includes("placeholder") &&
-      keySecret &&
-      !keySecret.includes("secret") &&
-      !keySecret.includes("placeholder")
-    );
-
-    if (isProduction && !isConfigured) {
-      console.error("[PaymentService] Production environment detected but Razorpay credentials are not configured.");
-      throw new Error("PAYMENT_GATEWAY_NOT_CONFIGURED: Valid Razorpay credentials are required in production.");
+    if (!keyId || !keySecret) {
+      console.error("[PaymentService] Missing Razorpay credentials in environment.");
+      throw new Error("PAYMENT_GATEWAY_NOT_CONFIGURED: RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET must be configured.");
     }
 
-    let orderId = `order_sim_${booking.id.slice(-6)}_${Date.now()}`;
+    let orderId: string;
 
-    if (isConfigured) {
-      try {
-        const auth = Buffer.from(`${keyId}:${keySecret}`).toString("base64");
-        const res = await fetch("https://api.razorpay.com/v1/orders", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Basic ${auth}`,
+    try {
+      const auth = Buffer.from(`${keyId}:${keySecret}`).toString("base64");
+      const res = await fetch("https://api.razorpay.com/v1/orders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Basic ${auth}`,
+        },
+        body: JSON.stringify({
+          amount: amountInPaise,
+          currency: "INR",
+          receipt: booking.bookingCode,
+          notes: {
+            bookingId: booking.id,
+            bookingCode: booking.bookingCode,
+            customerName: booking.customerName,
+            customerEmail: booking.customerEmail,
           },
-          body: JSON.stringify({
-            amount: amountInPaise,
-            currency: "INR",
-            receipt: booking.bookingCode,
-            notes: {
-              bookingId: booking.id,
-              bookingCode: booking.bookingCode,
-              customerName: booking.customerName,
-            },
-          }),
-        });
+        }),
+      });
 
-        const data = await res.json();
-        if (!res.ok || !data.id) {
-          console.error("[PaymentService] Razorpay order creation failed:", data);
-          throw new Error(`RAZORPAY_ORDER_FAILED: ${data.error?.description || "Failed to initialize gateway order."}`);
-        }
-        orderId = data.id;
-      } catch (err: any) {
-        console.error("[PaymentService] Error communicating with Razorpay API:", err);
-        throw err;
+      const data = await res.json();
+      if (!res.ok || !data.id) {
+        console.error("[PaymentService] Razorpay order creation API error:", data);
+        throw new Error(`RAZORPAY_ORDER_FAILED: ${data.error?.description || data.error?.message || "Failed to initialize gateway order."}`);
       }
-    } else {
-      console.log(`[PaymentService - DEV / SIMULATED] Generated simulated order ID for booking: ${booking.bookingCode} (Amount: ₹${booking.totalAmount} / ${amountInPaise} paise)`);
+      orderId = data.id;
+    } catch (err: any) {
+      console.error("[PaymentService] Error communicating with Razorpay API:", err);
+      throw err;
     }
 
     // Persist razorpayOrderId in the payment ledger and reset status to PENDING for new attempt
@@ -115,8 +117,7 @@ export class PaymentService {
       amountInPaise,
       currency: "INR",
       bookingCode: booking.bookingCode,
-      keyId: isConfigured ? (keyId as string) : "rzp_test_placeholder_key_id",
-      isSimulated: !isConfigured,
+      keyId,
     };
   }
 
@@ -146,7 +147,6 @@ export class PaymentService {
     }
 
     // 1. Idempotency check: if already confirmed and paid, return existing confirmed booking
-
     if (booking.paymentStatus === PaymentStatus.SUCCESS && booking.payment?.status === PaymentStatus.SUCCESS) {
       console.log(`[PaymentService] Booking ${booking.bookingCode} is already verified and confirmed. Returning idempotently.`);
       return {
@@ -175,11 +175,7 @@ export class PaymentService {
 
     const keySecret = process.env.RAZORPAY_KEY_SECRET;
     const isProduction = process.env.NODE_ENV === "production";
-    const isConfigured = Boolean(
-      keySecret &&
-      !keySecret.includes("secret") &&
-      !keySecret.includes("placeholder")
-    );
+    const isConfigured = this.isRazorpayConfigured();
 
     // 3. Cryptographic Signature Verification
     if (isProduction || isConfigured) {
@@ -202,15 +198,22 @@ export class PaymentService {
         throw new Error("INVALID_PAYMENT_SIGNATURE: Missing order ID, cryptographic signature, or gateway credentials.");
       }
 
-      const generatedSignature = crypto
+      const expectedSignature = crypto
         .createHmac("sha256", keySecret)
         .update(`${data.razorpayOrderId}|${data.razorpayPaymentId}`)
         .digest("hex");
 
-      if (generatedSignature !== data.razorpaySignature) {
+      const expectedBuffer = Buffer.from(expectedSignature, "utf8");
+      const receivedBuffer = Buffer.from(data.razorpaySignature, "utf8");
+
+      const isSignatureValid =
+        expectedBuffer.length === receivedBuffer.length &&
+        crypto.timingSafeEqual(expectedBuffer, receivedBuffer);
+
+      if (!isSignatureValid) {
         console.error("[PaymentService] Signature mismatch during verification:", {
           received: data.razorpaySignature,
-          expected: generatedSignature,
+          expected: expectedSignature,
         });
 
         // Record failed payment in ledger
@@ -244,7 +247,7 @@ export class PaymentService {
         (data.razorpaySignature.includes("invalid") ||
           data.razorpaySignature.includes("fail") ||
           data.razorpaySignature.includes("mismatch") ||
-          data.razorpaySignature !== "simulated_dev_signature")
+          (data.razorpaySignature !== "simulated_dev_signature" && data.razorpaySignature !== "simulated_retry_signature"))
       ) {
         console.error("[PaymentService - DEV / SIMULATED] Simulated signature mismatch triggered.");
         if (booking.payment) {
@@ -266,7 +269,6 @@ export class PaymentService {
       }
     }
 
-
     // 4. Atomic transaction updating Booking and Payment ledger
     const updatedBooking = await prisma.$transaction(async (tx) => {
       const b = await tx.booking.update({
@@ -287,8 +289,20 @@ export class PaymentService {
           where: { id: booking.payment.id },
           data: {
             status: PaymentStatus.SUCCESS,
-            razorpayOrderId: data.razorpayOrderId || booking.payment.razorpayOrderId,
             razorpayPaymentId: data.razorpayPaymentId,
+            razorpayOrderId: data.razorpayOrderId || booking.payment.razorpayOrderId,
+            razorpaySignature: data.razorpaySignature || null,
+          },
+        });
+      } else {
+        await tx.payment.create({
+          data: {
+            bookingId: booking.id,
+            amount: booking.totalAmount,
+            currency: "INR",
+            status: PaymentStatus.SUCCESS,
+            razorpayPaymentId: data.razorpayPaymentId,
+            razorpayOrderId: data.razorpayOrderId,
             razorpaySignature: data.razorpaySignature || null,
           },
         });
@@ -297,9 +311,11 @@ export class PaymentService {
       return b;
     });
 
-    // 5. Trigger automatic email notifications to Manager and Customer upon payment success (idempotent)
-    EmailService.sendBookingNotificationEmails(updatedBooking.id).catch((err) => {
-      console.error("[PaymentService] Failed to dispatch booking email notifications:", err);
+    console.log(`[PaymentService] Payment verified successfully for booking: ${updatedBooking.bookingCode}`);
+
+    // 5. Dispatch confirmation email notifications asynchronously (non-blocking)
+    EmailService.sendBookingNotificationEmails(updatedBooking.id).catch((emailErr) => {
+      console.error("[PaymentService] Non-blocking email delivery failure:", emailErr);
     });
 
     return {
@@ -307,5 +323,77 @@ export class PaymentService {
       bookingCode: updatedBooking.bookingCode,
       booking: updatedBooking,
     };
+  }
+
+  /**
+   * Processes a refund via Razorpay REST API (when configured) and updates database state.
+   */
+  static async refundPayment(bookingId: string, amount?: number, reason?: string) {
+    const booking = await prisma.booking.findUnique({
+      where: { id: bookingId },
+      include: { payment: true },
+    });
+
+    if (!booking) throw new Error("BOOKING_NOT_FOUND");
+    if (!booking.payment || !booking.payment.razorpayPaymentId) {
+      throw new Error("NO_PAYMENT_FOUND: Cannot refund a booking without captured payment.");
+    }
+
+    const keyId = process.env.RAZORPAY_KEY_ID;
+    const keySecret = process.env.RAZORPAY_KEY_SECRET;
+    const isConfigured = this.isRazorpayConfigured();
+    const refundAmountInPaise = amount ? Math.round(amount * 100) : undefined;
+
+    if (isConfigured && keyId && keySecret) {
+      try {
+        const auth = Buffer.from(`${keyId}:${keySecret}`).toString("base64");
+        const res = await fetch(`https://api.razorpay.com/v1/payments/${booking.payment.razorpayPaymentId}/refund`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Basic ${auth}`,
+          },
+          body: JSON.stringify({
+            ...(refundAmountInPaise ? { amount: refundAmountInPaise } : {}),
+            notes: {
+              bookingCode: booking.bookingCode,
+              reason: reason || "Customer cancellation",
+            },
+          }),
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          console.error("[PaymentService] Razorpay refund API failed:", data);
+          throw new Error(`REFUND_FAILED: ${data.error?.description || "Failed to process refund on gateway."}`);
+        }
+      } catch (err: any) {
+        console.error("[PaymentService] Refund API error:", err);
+        throw err;
+      }
+    }
+
+    // Update database states
+    const updated = await prisma.$transaction(async (tx) => {
+      const p = await tx.payment.update({
+        where: { id: booking.payment!.id },
+        data: { status: PaymentStatus.REFUNDED },
+      });
+      const b = await tx.booking.update({
+        where: { id: booking.id },
+        data: {
+          paymentStatus: PaymentStatus.REFUNDED,
+          bookingStatus: BookingStatus.REFUNDED,
+        },
+      });
+      return { booking: b, payment: p };
+    });
+
+    // Send cancellation & refund notification
+    EmailService.sendBookingCancellationEmail(booking.id, reason).catch((err) => {
+      console.error("[PaymentService] Failed to send refund email:", err);
+    });
+
+    return updated;
   }
 }

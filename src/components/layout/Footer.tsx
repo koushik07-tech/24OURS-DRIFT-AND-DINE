@@ -54,12 +54,12 @@ export default function Footer() {
               Destinations
             </p>
             <ul className="space-y-2 text-carbon-400">
-              <li><a href="#karting" className="hover:text-brand-red transition-colors">Go-Karting Circuit</a></li>
-              <li><a href="#rc-racing" className="hover:text-brand-red transition-colors">RC Racing Arena</a></li>
-              <li><a href="#restaurant" className="hover:text-brand-red transition-colors">360° Sky Dining</a></li>
-              <li><a href="#events" className="hover:text-brand-red transition-colors">Event & Banquets</a></li>
-              <li><a href="#automotive" className="hover:text-brand-red transition-colors">Automotive Gallery</a></li>
-              <li><a href="#gallery" className="hover:text-brand-red transition-colors">Visual Archive</a></li>
+              <li><Link href="/#karting" className="hover:text-brand-red transition-colors">Go-Karting Circuit</Link></li>
+              <li><Link href="/#rc-racing" className="hover:text-brand-red transition-colors">RC Racing Arena</Link></li>
+              <li><Link href="/#restaurant" className="hover:text-brand-red transition-colors">360° Sky Dining</Link></li>
+              <li><Link href="/#events" className="hover:text-brand-red transition-colors">Event & Banquets</Link></li>
+              <li><Link href="/#automotive" className="hover:text-brand-red transition-colors">Automotive Gallery</Link></li>
+              <li><Link href="/#gallery" className="hover:text-brand-red transition-colors">Visual Archive</Link></li>
             </ul>
           </div>
 
@@ -90,11 +90,15 @@ export default function Footer() {
               </div>
               <div className="flex items-center gap-2">
                 <Phone className="w-3.5 h-3.5 text-brand-red shrink-0" />
-                <span>{siteConfig.contact.phone}</span>
+                <a href={`tel:${siteConfig.contact.phone.replace(/\s+/g, '')}`} className="hover:text-white transition-colors">
+                  {siteConfig.contact.phone}
+                </a>
               </div>
               <div className="flex items-center gap-2">
                 <Mail className="w-3.5 h-3.5 text-brand-red shrink-0" />
-                <span>{siteConfig.contact.email}</span>
+                <a href={`mailto:${siteConfig.contact.email}`} className="hover:text-white transition-colors">
+                  {siteConfig.contact.email}
+                </a>
               </div>
               <div className="flex items-center gap-2">
                 <Clock className="w-3.5 h-3.5 text-brand-red shrink-0" />

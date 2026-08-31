@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Lock, Mail, User, Phone, CheckSquare, Square, Flag } from "lucide-react";
@@ -8,7 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 
 export default function SignupPage() {
   const router = useRouter();
-  const { register, isLoading } = useAuth();
+  const { user, isAuthenticated, register, isLoading } = useAuth();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -17,21 +17,53 @@ export default function SignupPage() {
   const [agreed, setAgreed] = useState(true);
   const [error, setError] = useState("");
 
+  // If already authenticated, redirect to dashboard or admin
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      window.location.href = user.role === "ADMIN" ? "/admin" : "/dashboard";
+    }
+  }, [isAuthenticated, user]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
     if (!agreed) {
-      setError("Please agree to the Terms of Service and Privacy Policy.");
+      setError("Please agree to the Terms of Service to continue.");
       return;
     }
 
-    const res = await register({ name, email, phone, password });
-    if (res.success) {
-      router.push("/dashboard");
-    } else {
-      setError(res.error || "Failed to create account.");
+    const username = email.split("@")[0].replace(/[^a-zA-Z0-9_-]/g, "") || "racer_" + Date.now();
+
+    try {
+      await register({
+        name,
+        username,
+        email,
+        phone,
+        password,
+      });
+    } catch (err: any) {
+      setError(err?.message || "Registration failed. Please try again.");
+      return;
     }
+
+    // Hard redirect guarantees clean cookie transmission and prevents React 19 Error #460
+    window.location.href = "/dashboard";
   };
+
+  // If already authenticated, show redirecting state
+  if (isAuthenticated && user) {
+    return (
+      <div className="pt-32 pb-20 min-h-screen subtle-grid flex items-center justify-center px-4">
+        <div className="max-w-md w-full p-8 rounded-3xl bg-carbon-950 border border-white/15 text-center space-y-4 shadow-card-elevated">
+          <div className="w-10 h-10 border-2 border-brand-red border-t-transparent rounded-full animate-spin mx-auto" />
+          <h2 className="text-xl font-display font-bold text-white uppercase">Redirecting...</h2>
+          <p className="text-xs font-mono text-carbon-400">Taking you to Driver Telemetry Portal</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="pt-32 pb-20 min-h-screen subtle-grid flex items-center justify-center px-4">
@@ -87,7 +119,7 @@ export default function SignupPage() {
               required
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              placeholder="+91 98765 43210"
+              placeholder="+91 9187194643"
               className="w-full px-4 py-2.5 bg-carbon-900 border border-white/10 rounded-xl text-white text-sm focus:outline-none focus:border-brand-red"
             />
           </div>

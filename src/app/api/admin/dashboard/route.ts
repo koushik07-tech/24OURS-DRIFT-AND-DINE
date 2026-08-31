@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { AdminService } from "@/lib/services/admin.service";
 import { requireAdmin } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(req: NextRequest) {
   try {
     await requireAdmin(req);

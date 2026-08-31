@@ -39,7 +39,7 @@ export default function Attractions({ onOpenJourneyModal }) {
       }
       subtitle="01 — 09 Experiences"
       title="ENGINEERED FOR ANTICIPATION."
-      description="Nine interconnected world-class entertainment, culinary, and celebration experiences currently taking shape in Chikkaballapura."
+      description="Nine interconnected world-class entertainment, culinary, and celebration experiences currently taking shape in Malur, Kolar, Karnataka."
       align="center"
       glowColor="red"
       hasGrid={true}
@@ -171,7 +171,7 @@ export default function Attractions({ onOpenJourneyModal }) {
                     {/* Visual Footer Telemetry */}
                     <div className="flex items-center justify-between text-[11px] font-mono text-carbon-500 border-t border-white/5 pt-3">
                       <span>DESTINATION REF: 24O-{attraction.number}</span>
-                      <span className="text-carbon-300">CHIKKABALLAPURA</span>
+                      <span className="text-carbon-300">MALUR, KOLAR, KARNATAKA</span>
                     </div>
                   </div>
                 </div>

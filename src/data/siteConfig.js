@@ -4,13 +4,13 @@ export const siteConfig = {
   slogan: "RACE. PLAY. DINE. CELEBRATE.",
   badgeText: "COMING SOON",
   location: {
-    city: "Chikkaballapura",
+    city: "Malur, Kolar",
     state: "Karnataka",
     country: "India",
-    region: "Bengaluru–Chikkaballapura Leisure Corridor",
-    coordinates: "13.4325° N, 77.7275° E",
-    displayAddress: "Chikkaballapura, Karnataka, India",
-    accessNote: "Strategically located along the scenic highway corridor of Chikkaballapura.",
+    region: "Bengaluru–Malur–Kolar Leisure Corridor",
+    coordinates: "13.0039° N, 77.9406° E",
+    displayAddress: "Malur, Kolar, Karnataka, India",
+    accessNote: "Strategically located along the scenic corridor of Malur, Kolar, Karnataka.",
   },
   status: {
     state: "Under Construction",
