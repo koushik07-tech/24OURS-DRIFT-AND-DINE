@@ -1,12 +1,20 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { ChevronDown, Volume2, VolumeX, Flag, ArrowRight, Calendar, Compass, Play, Zap } from "lucide-react";
+import {
+  ChevronDown,
+  Volume2,
+  VolumeX,
+  ArrowRight,
+  Calendar,
+  Compass,
+  Play,
+  Zap,
+} from "lucide-react";
 import { siteConfig } from "@/config/site";
 import { mediaConfig } from "@/config/media";
 import { useBooking } from "@/context/BookingContext";
 import { soundEngine } from "@/lib/soundEngine";
-import CinematicIntro from "@/components/cinematic/CinematicIntro";
 
 interface S1HeroProps {
   onReplayIntro?: () => void;
@@ -16,8 +24,6 @@ export default function S1_Hero({ onReplayIntro }: S1HeroProps) {
   const { openBookingModal } = useBooking();
   const [isMuted, setIsMuted] = useState(soundEngine.getMuted());
   const [activeSpeed, setActiveSpeed] = useState(84);
-  const [showIntro, setShowIntro] = useState(true);
-  const [introKey, setIntroKey] = useState(0);
 
   useEffect(() => {
     // Dynamic telemetry speed simulation
@@ -37,9 +43,9 @@ export default function S1_Hero({ onReplayIntro }: S1HeroProps) {
 
   const handleReplay = () => {
     soundEngine.playClick(700);
-    setIntroKey((prev) => prev + 1);
-    setShowIntro(true);
-    if (onReplayIntro) onReplayIntro();
+    if (onReplayIntro) {
+      onReplayIntro();
+    }
   };
 
   return (
@@ -47,15 +53,6 @@ export default function S1_Hero({ onReplayIntro }: S1HeroProps) {
       id="hero"
       className="relative min-h-screen flex flex-col justify-between pt-32 sm:pt-36 pb-12 px-4 sm:px-6 lg:px-8 bg-[#070709] overflow-hidden select-none"
     >
-      {/* Cinematic Opening Sequence */}
-      {showIntro && (
-        <CinematicIntro
-          key={introKey}
-          forceShow={introKey > 0}
-          onComplete={() => setShowIntro(false)}
-        />
-      )}
-
       {/* 1. Fullscreen Background Video & Motorsport Atmosphere */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
         <video
@@ -83,16 +80,18 @@ export default function S1_Hero({ onReplayIntro }: S1HeroProps) {
           <span className="text-carbon-400 hidden sm:inline">• HOT LAP SESSION ACTIVE</span>
         </div>
 
-        {/* Action Controls: Sound & Replay Intro */}
+        {/* Action Controls: Sound & Single Replay Intro Button */}
         <div className="flex items-center gap-2">
-          <button
-            onClick={handleReplay}
-            className="px-3 py-1.5 rounded-full bg-carbon-900/80 border border-white/10 hover:border-brand-red/60 text-carbon-300 hover:text-white backdrop-blur-md transition-all text-xs font-mono flex items-center gap-1.5"
-            title="Watch cinematic movie opening sequence again"
-          >
-            <Play className="w-3.5 h-3.5 text-brand-red" />
-            <span>REPLAY INTRO</span>
-          </button>
+          {onReplayIntro && (
+            <button
+              onClick={handleReplay}
+              className="px-3 py-1.5 rounded-full bg-carbon-900/80 border border-white/10 hover:border-brand-red/60 text-carbon-300 hover:text-white backdrop-blur-md transition-all text-xs font-mono flex items-center gap-1.5"
+              title="Watch cinematic movie opening sequence again"
+            >
+              <Play className="w-3.5 h-3.5 text-brand-red" />
+              <span>REPLAY INTRO</span>
+            </button>
+          )}
 
           <button
             onClick={handleToggleSound}
