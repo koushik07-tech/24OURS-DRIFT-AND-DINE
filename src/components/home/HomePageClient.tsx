@@ -6,6 +6,7 @@ import S1_Hero from "@/components/sections/S1_Hero";
 import S2_Intro from "@/components/sections/S2_Intro";
 import S3_Karting from "@/components/sections/S3_Karting";
 import S4_RCRacing from "@/components/sections/S4_RCRacing";
+import FacilityMapSection from "@/components/sections/FacilityMapSection";
 import S5_Restaurant from "@/components/sections/S5_Restaurant";
 import S6_Events from "@/components/sections/S6_Events";
 import S7_Automotive from "@/components/sections/S7_Automotive";
@@ -45,7 +46,10 @@ export default function HomePageClient() {
       {/* S4: RC Racing Arena & Live Board */}
       <S4_RCRacing />
 
-      {/* S5: 360° Panoramic Sky Restaurant */}
+      {/* 3D Facility Map & Destination Masterplan */}
+      <FacilityMapSection />
+
+      {/* S5: 360° Panoramic Sky Restaurant with 3D Deck */}
       <S5_Restaurant />
 
       {/* S6: Event & Banquet Halls */}
