@@ -3,10 +3,11 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, Calendar, User, ShieldAlert, LogOut, LayoutDashboard } from "lucide-react";
+import { Menu, X, Calendar, User, ShieldAlert, LogOut, LayoutDashboard, Volume2, VolumeX } from "lucide-react";
 import { siteConfig } from "@/config/site";
 import { useBooking } from "@/context/BookingContext";
 import { useAuth } from "@/context/AuthContext";
+import { soundEngine } from "@/lib/soundEngine";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -16,6 +17,7 @@ export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const [isMuted, setIsMuted] = useState(soundEngine.getMuted());
 
   useEffect(() => {
     const handleScroll = () => {
@@ -25,38 +27,52 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const handleSoundToggle = () => {
+    const muted = soundEngine.toggleMute();
+    setIsMuted(muted);
+    if (!muted) {
+      soundEngine.playClick(650);
+    }
+  };
+
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
         isScrolled || pathname !== "/"
-          ? "bg-brand-black/95 backdrop-blur-xl border-b border-white/10 py-3 shadow-2xl"
-          : "bg-gradient-to-b from-brand-black/90 via-brand-black/40 to-transparent py-5 sm:py-6"
+          ? "bg-[#070709]/95 backdrop-blur-xl border-b border-white/10 py-3 shadow-2xl"
+          : "bg-gradient-to-b from-[#070709]/90 via-[#070709]/40 to-transparent py-4 sm:py-5"
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
           
           {/* Brand Logo */}
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-10 h-10 rounded-xl bg-brand-red flex items-center justify-center text-white font-display font-black text-xl shadow-glow-red group-hover:scale-105 transition-transform">
+          <Link
+            href="/"
+            onClick={() => soundEngine.playClick(500)}
+            className="flex items-center gap-2.5 group"
+          >
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-red to-red-600 flex items-center justify-center text-white font-display font-black text-xl shadow-glow-red group-hover:scale-105 transition-transform border border-red-500/30">
               24
             </div>
             <div className="text-left">
-              <span className="text-base font-display font-black tracking-tight text-white block leading-none">
+              <span className="text-base font-display font-black tracking-tight text-white block leading-none drop-shadow-md">
                 24OURS
               </span>
-              <span className="text-[9px] font-mono tracking-[0.2em] text-brand-red font-bold uppercase block">
-                DRIFT AND DINE
+              <span className="text-[9px] font-mono tracking-[0.22em] text-brand-red font-bold uppercase block">
+                DRIFT & DINE
               </span>
             </div>
           </Link>
 
           {/* Desktop Nav Links */}
-          <nav className="hidden lg:flex items-center gap-1 xl:gap-1.5 px-3 py-1.5 rounded-full bg-carbon-900/80 border border-white/10 backdrop-blur-md">
+          <nav className="hidden lg:flex items-center gap-1 xl:gap-1.5 px-3 py-1.5 rounded-full bg-carbon-900/85 border border-white/10 backdrop-blur-md">
             {siteConfig.navLinks.map((link) => (
               <Link
                 key={link.name}
                 href={link.href}
+                onMouseEnter={() => soundEngine.playHover()}
+                onClick={() => soundEngine.playClick(600)}
                 className="px-3.5 py-1.5 text-xs font-mono uppercase tracking-wider rounded-full text-carbon-300 hover:text-white hover:bg-white/10 transition-colors"
               >
                 {link.name}
@@ -65,11 +81,30 @@ export default function Navbar() {
           </nav>
 
           {/* Right Action Controls */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
+            {/* Audio Visualizer Button */}
+            <button
+              onClick={handleSoundToggle}
+              className="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-carbon-850 border border-white/10 text-xs font-mono text-carbon-300 hover:text-white hover:border-brand-red transition-all"
+              title="Toggle sound effects"
+            >
+              {isMuted ? (
+                <VolumeX className="w-3.5 h-3.5 text-carbon-400" />
+              ) : (
+                <Volume2 className="w-3.5 h-3.5 text-brand-red animate-pulse" />
+              )}
+              <span className="text-[10px] uppercase text-carbon-300 hidden xl:inline">
+                {isMuted ? "MUTED" : "AUDIO"}
+              </span>
+            </button>
+
             {/* Action Hook (No Pricing) */}
             <button
-              onClick={() => openBookingModal()}
-              className="hidden sm:inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-red text-white text-xs font-mono font-bold uppercase tracking-wider hover:bg-brand-redDark shadow-glow-red transition-all"
+              onClick={() => {
+                soundEngine.playClick(600);
+                openBookingModal();
+              }}
+              className="hidden sm:inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-brand-red to-red-600 text-white text-xs font-mono font-bold uppercase tracking-wider hover:from-brand-redDark hover:to-red-700 shadow-glow-red transition-all border border-red-500/30"
             >
               <Calendar className="w-3.5 h-3.5" />
               <span>BOOK NOW</span>
@@ -79,7 +114,10 @@ export default function Navbar() {
             {isAuthenticated ? (
               <div className="relative">
                 <button
-                  onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                  onClick={() => {
+                    soundEngine.playClick(500);
+                    setUserDropdownOpen(!userDropdownOpen);
+                  }}
                   className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-carbon-850 border border-white/10 text-xs font-mono text-white hover:border-brand-red transition-all"
                 >
                   <span className="w-2 h-2 rounded-full bg-emerald-400" />
@@ -94,7 +132,10 @@ export default function Navbar() {
 
                     <Link
                       href="/dashboard"
-                      onClick={() => setUserDropdownOpen(false)}
+                      onClick={() => {
+                        soundEngine.playClick(600);
+                        setUserDropdownOpen(false);
+                      }}
                       className="flex items-center gap-2 px-4 py-2 text-xs font-mono text-carbon-200 hover:text-white hover:bg-white/10"
                     >
                       <LayoutDashboard className="w-3.5 h-3.5 text-brand-red" />
@@ -104,7 +145,10 @@ export default function Navbar() {
                     {isAdmin && (
                       <Link
                         href="/admin"
-                        onClick={() => setUserDropdownOpen(false)}
+                        onClick={() => {
+                          soundEngine.playClick(600);
+                          setUserDropdownOpen(false);
+                        }}
                         className="flex items-center gap-2 px-4 py-2 text-xs font-mono text-amber-400 hover:bg-white/10"
                       >
                         <ShieldAlert className="w-3.5 h-3.5" />
@@ -114,6 +158,7 @@ export default function Navbar() {
 
                     <button
                       onClick={() => {
+                        soundEngine.playClick(400);
                         logout();
                         setUserDropdownOpen(false);
                       }}
@@ -128,6 +173,7 @@ export default function Navbar() {
             ) : (
               <Link
                 href="/login"
+                onClick={() => soundEngine.playClick(600)}
                 className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-carbon-850 border border-white/10 text-xs font-mono text-carbon-300 hover:text-white hover:border-brand-red transition-all"
               >
                 <User className="w-3.5 h-3.5 text-brand-red" />
@@ -137,7 +183,10 @@ export default function Navbar() {
 
             {/* Mobile Menu Button */}
             <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              onClick={() => {
+                soundEngine.playClick(500);
+                setMobileMenuOpen(!mobileMenuOpen);
+              }}
               className="lg:hidden p-2.5 rounded-lg bg-carbon-850 border border-white/10 text-carbon-200 hover:text-white"
               aria-label="Toggle navigation"
             >
@@ -150,13 +199,16 @@ export default function Navbar() {
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="lg:hidden bg-brand-black/98 border-b border-white/15 backdrop-blur-2xl px-4 pt-4 pb-8 space-y-4 animate-fadeIn">
+        <div className="lg:hidden bg-[#070709]/98 border-b border-white/15 backdrop-blur-2xl px-4 pt-4 pb-8 space-y-4 animate-fadeIn">
           <nav className="flex flex-col space-y-1">
             {siteConfig.navLinks.map((link) => (
               <Link
                 key={link.name}
                 href={link.href}
-                onClick={() => setMobileMenuOpen(false)}
+                onClick={() => {
+                  soundEngine.playClick(600);
+                  setMobileMenuOpen(false);
+                }}
                 className="px-4 py-3 rounded-lg text-sm font-heading font-semibold uppercase tracking-wider text-carbon-200 hover:text-white hover:bg-carbon-850"
               >
                 {link.name}
@@ -167,10 +219,11 @@ export default function Navbar() {
           <div className="pt-3 border-t border-white/10 flex flex-col gap-2">
             <button
               onClick={() => {
+                soundEngine.playClick(600);
                 setMobileMenuOpen(false);
                 openBookingModal();
               }}
-              className="w-full py-3 rounded-xl bg-brand-red text-white font-mono text-xs font-bold uppercase tracking-wider shadow-glow-red"
+              className="w-full py-3 rounded-xl bg-gradient-to-r from-brand-red to-red-600 text-white font-mono text-xs font-bold uppercase tracking-wider shadow-glow-red"
             >
               BOOK NOW
             </button>
@@ -178,13 +231,17 @@ export default function Navbar() {
               <div className="grid grid-cols-2 gap-2">
                 <Link
                   href="/dashboard"
-                  onClick={() => setMobileMenuOpen(false)}
+                  onClick={() => {
+                    soundEngine.playClick(600);
+                    setMobileMenuOpen(false);
+                  }}
                   className="py-3 text-center rounded-xl bg-carbon-850 border border-white/10 text-white font-mono text-xs font-bold uppercase"
                 >
                   Dashboard
                 </Link>
                 <button
                   onClick={() => {
+                    soundEngine.playClick(400);
                     setMobileMenuOpen(false);
                     logout();
                   }}
@@ -196,7 +253,10 @@ export default function Navbar() {
             ) : (
               <Link
                 href="/login"
-                onClick={() => setMobileMenuOpen(false)}
+                onClick={() => {
+                  soundEngine.playClick(600);
+                  setMobileMenuOpen(false);
+                }}
                 className="w-full py-3 rounded-xl bg-carbon-850 border border-white/10 text-white font-mono text-xs font-bold uppercase text-center"
               >
                 Driver Login / Register
