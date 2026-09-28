@@ -22,11 +22,14 @@ import { useBooking } from "@/context/BookingContext";
 import { soundEngine } from "@/lib/soundEngine";
 import MagneticButton from "@/components/ui/MagneticButton";
 
-const HeroKineticCore = dynamic(() => import("@/components/3d/HeroKineticCore"), {
+const CinematicHeroKart = dynamic(() => import("@/components/3d/CinematicHeroKart"), {
   ssr: false,
   loading: () => (
-    <div className="w-[320px] h-[320px] sm:w-[420px] sm:h-[420px] flex items-center justify-center">
-      <div className="w-48 h-48 rounded-full border border-brand-crimson/30 animate-pulse" />
+    <div className="w-full h-[360px] sm:h-[440px] flex flex-col items-center justify-center space-y-3">
+      <div className="w-14 h-14 rounded-full border-2 border-white/20 border-t-[#FF5A36] animate-spin" />
+      <span className="text-xs font-mono text-zinc-400 uppercase tracking-widest">
+        Preparing 3D Racing Experience...
+      </span>
     </div>
   ),
 });
@@ -173,14 +176,14 @@ export default function S1_Hero() {
           </span>
         </motion.div>
 
-        {/* Centered 3D Interactive Canvas Feature */}
+        {/* Centered 3D Interactive Canvas Feature: Realistic Cinematic Go-Kart */}
         <motion.div
-          initial={{ scale: 0.85, opacity: 0 }}
+          initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-          className="my-1 sm:my-2 relative"
+          className="my-3 relative w-full max-w-4xl mx-auto h-[360px] sm:h-[450px] lg:h-[480px] rounded-3xl overflow-hidden liquid-glass border border-white/10 shadow-[0_25px_70px_rgba(0,0,0,0.85)]"
         >
-          <HeroKineticCore />
+          <CinematicHeroKart />
         </motion.div>
 
         {/* Futuristic Bold Typography */}
