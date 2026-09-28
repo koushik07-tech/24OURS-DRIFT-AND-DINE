@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Outfit, Syne, Space_Grotesk } from "next/font/google";
+import { Inter, Outfit, Syne, Space_Grotesk, Orbitron } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -30,6 +30,12 @@ const syne = Syne({
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
   variable: "--font-space-grotesk",
+  display: "swap",
+});
+
+const orbitron = Orbitron({
+  subsets: ["latin"],
+  variable: "--font-orbitron",
   display: "swap",
 });
 
@@ -84,7 +90,7 @@ export default function RootLayout({
   };
 
   return (
-    <html lang="en" className={`${inter.variable} ${outfit.variable} ${syne.variable} ${spaceGrotesk.variable}`}>
+    <html lang="en" className={`${inter.variable} ${outfit.variable} ${syne.variable} ${spaceGrotesk.variable} ${orbitron.variable}`}>
       <head>
         <script
           type="application/ld+json"

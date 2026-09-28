@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
-import CinematicIntro from "@/components/cinematic/CinematicIntro";
+import React from "react";
 import S1_Hero from "@/components/sections/S1_Hero";
 import S2_Intro from "@/components/sections/S2_Intro";
 import S3_Karting from "@/components/sections/S3_Karting";
 import S4_RCRacing from "@/components/sections/S4_RCRacing";
+import S10_Leaderboard from "@/components/sections/S10_Leaderboard";
 import FacilityMapSection from "@/components/sections/FacilityMapSection";
 import S5_Restaurant from "@/components/sections/S5_Restaurant";
 import S6_Events from "@/components/sections/S6_Events";
@@ -15,27 +15,10 @@ import S9_About from "@/components/sections/S9_About";
 import S11_FinalCTA from "@/components/sections/S11_FinalCTA";
 
 export default function HomePageClient() {
-  const [showIntro, setShowIntro] = useState<boolean>(true);
-  const [forceIntroKey, setForceIntroKey] = useState<number>(0);
-
-  const handleReplayIntro = () => {
-    setForceIntroKey((prev) => prev + 1);
-    setShowIntro(true);
-  };
-
   return (
     <main className="relative w-full overflow-x-hidden">
-      {/* Cinematic Opening Sequence */}
-      {showIntro && (
-        <CinematicIntro
-          key={forceIntroKey}
-          forceShow={forceIntroKey > 0}
-          onComplete={() => setShowIntro(false)}
-        />
-      )}
-
       {/* S1: Fullscreen Hero */}
-      <S1_Hero onReplayIntro={handleReplayIntro} />
+      <S1_Hero />
 
       {/* S2: Introduction & Destination Stats */}
       <S2_Intro />
@@ -45,6 +28,9 @@ export default function HomePageClient() {
 
       {/* S4: RC Racing Arena & Live Board */}
       <S4_RCRacing />
+
+      {/* S10: Circuit Leaderboard & Hall of Fame Telemetry */}
+      <S10_Leaderboard />
 
       {/* 3D Facility Map & Destination Masterplan */}
       <FacilityMapSection />

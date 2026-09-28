@@ -13,8 +13,11 @@ export default function Footer() {
   };
 
   return (
-    <footer className="bg-carbon-950 border-t border-white/10 pt-16 pb-12 text-carbon-400 font-sans text-xs select-none">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+    <footer className="bg-[#060608] border-t border-white/10 pt-16 pb-12 text-carbon-400 font-sans text-xs select-none relative overflow-hidden">
+      {/* Ambient Crimson Glow */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[200px] bg-brand-crimson/10 rounded-full blur-[140px] pointer-events-none" />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 relative z-10">
         
         {/* Top Tier */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-12 pb-12 border-b border-white/10 text-left">
@@ -22,14 +25,14 @@ export default function Footer() {
           {/* Brand & Corporate Entity */}
           <div className="lg:col-span-4 space-y-4">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-brand-red flex items-center justify-center text-white font-display font-black text-base shadow-glow-red">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-crimson to-red-700 flex items-center justify-center text-white font-display font-black text-base shadow-[0_0_15px_rgba(255,46,0,0.5)] border border-red-400/30">
                 24
               </div>
               <div>
                 <span className="text-sm font-display font-black tracking-tight text-white block">
                   24OURS
                 </span>
-                <span className="text-[8px] font-mono tracking-[0.2em] text-brand-red font-bold uppercase block">
+                <span className="text-[8px] font-mono tracking-[0.2em] text-brand-crimson font-bold uppercase block">
                   DRIFT AND DINE
                 </span>
               </div>
