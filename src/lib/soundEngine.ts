@@ -5,7 +5,7 @@
 
 class SoundEngine {
   private ctx: AudioContext | null = null;
-  private isMuted: boolean = false;
+  private isMuted: boolean = true;
   private masterGain: GainNode | null = null;
 
   constructor() {

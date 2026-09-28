@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
-  <title>24OURS — DRIFT AND DINE | Premier Motorsport & Sky Dining Hub</title>
+  <title>24OURS — DRIFT AND DINE | Premier Motorsport &amp; Sky Dining Hub</title>
   <meta name="description" content="South India's premier entertainment sports hub. High-speed electric karting, suspended 360° horizon dining, competitive RC arena, and grand banquet architecture in Malur, Kolar." />
 
   <!-- Google Fonts: Syne, Orbitron, Outfit, and Space Grotesk -->
@@ -32,6 +32,7 @@
             },
             racingGreen: '#10B981',
             amberTrack: '#F59E0B',
+            goldAmber: '#FBBF24',
             slateBase: '#0b0f17',
             obsidian: '#06080d',
           },
@@ -39,23 +40,25 @@
             'coral-glow': '0 0 35px rgba(255, 90, 54, 0.45)',
             'amber-glow': '0 0 30px rgba(245, 158, 11, 0.4)',
             'green-pulse': '0 0 20px rgba(16, 185, 129, 0.5)',
+            'glass-inset': 'inset 0 1px 1px 0 rgba(255, 255, 255, 0.2), 0 20px 40px -15px rgba(0, 0, 0, 0.7)',
           },
         },
       },
     };
   </script>
 
-  <!-- Three.js (r128) & GSAP CDN -->
+  <!-- Three.js (r128) & GSAP + ScrollTrigger CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 
   <style>
     /* =========================================================
        EXACT LIQUID GLASS HUD SPECIFICATION
        ========================================================= */
     .liquid-glass {
-      backdrop-filter: blur(20px) saturate(190%);
-      -webkit-backdrop-filter: blur(20px) saturate(190%);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
       background: rgba(15, 23, 42, 0.45);
       border: 1px solid rgba(255, 255, 255, 0.12);
       box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.2), 0 20px 30px -10px rgba(0, 0, 0, 0.6);
@@ -69,11 +72,19 @@
       box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.1);
     }
 
+    .liquid-glass-card {
+      backdrop-filter: blur(20px) saturate(190%);
+      -webkit-backdrop-filter: blur(20px) saturate(190%);
+      background: rgba(18, 24, 38, 0.55);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.18), 0 24px 48px -12px rgba(0, 0, 0, 0.75);
+    }
+
     .liquid-glass-active {
       backdrop-filter: blur(20px) saturate(200%);
       -webkit-backdrop-filter: blur(20px) saturate(200%);
-      background: rgba(255, 90, 54, 0.18);
-      border: 1px solid rgba(255, 90, 54, 0.5);
+      background: rgba(255, 90, 54, 0.22);
+      border: 1px solid rgba(255, 90, 54, 0.55);
       box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.25), 0 0 25px rgba(255, 90, 54, 0.35);
     }
 
@@ -81,11 +92,11 @@
     .asphalt-grid {
       background-size: 50px 50px;
       background-image: 
-        linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+        linear-gradient(to right, rgba(255, 255, 255, 0.022) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.022) 1px, transparent 1px);
     }
 
-    /* Glow Text */
+    /* Glow Text utilities */
     .text-glow-coral {
       text-shadow: 0 0 25px rgba(255, 90, 54, 0.7), 0 0 50px rgba(255, 90, 54, 0.35);
     }
@@ -98,14 +109,14 @@
 
     /* Custom scrollbar */
     ::-webkit-scrollbar {
-      width: 4px;
+      width: 5px;
     }
     ::-webkit-scrollbar-track {
       background: #06080d;
     }
     ::-webkit-scrollbar-thumb {
       background: #1e293b;
-      border-radius: 2px;
+      border-radius: 3px;
     }
     ::-webkit-scrollbar-thumb:hover {
       background: #FF5A36;
@@ -140,24 +151,52 @@
       user-select: none;
       -webkit-user-select: none;
     }
+
+    /* Kinetic backdrop typography behind 3D */
+    .kinetic-backdrop {
+      pointer-events: none;
+      user-select: none;
+      position: absolute;
+      top: 36%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 100%;
+      text-align: center;
+      z-index: 5;
+      opacity: 0.14;
+      white-space: nowrap;
+      transition: transform 0.2s ease-out;
+    }
   </style>
 </head>
-<body class="bg-[#06080d] text-[#f8fafc] font-sans antialiased selection:bg-[#FF5A36] selection:text-white min-h-screen flex flex-col justify-between overflow-x-hidden">
+<body class="bg-[#06080d] text-[#f8fafc] font-sans antialiased selection:bg-[#FF5A36] selection:text-white min-h-screen overflow-x-hidden">
 
   <!-- Interactive Custom Cursor -->
   <div id="cursor-dot"></div>
   <div id="cursor-ring"></div>
 
-  <!-- Background Grids & Twilight Dusk Lighting -->
+  <!-- Background Grids & Twilight Dusk Atmosphere (#0b0f17 gradient down into deep obsidian slate #06080d) -->
   <div class="fixed inset-0 asphalt-grid pointer-events-none z-0"></div>
   
-  <!-- Atmospheric Dusk Horizon Gradients (Twilight Race Atmosphere) -->
-  <div class="fixed top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-gradient-to-b from-[#FF5A36]/15 via-[#F59E0B]/10 to-transparent blur-[150px] pointer-events-none z-0"></div>
-  <div class="fixed -bottom-20 -left-20 w-[600px] h-[600px] bg-[#FF5A36]/10 rounded-full blur-[170px] pointer-events-none z-0"></div>
-  <div class="fixed -bottom-20 -right-20 w-[600px] h-[600px] bg-[#F59E0B]/8 rounded-full blur-[170px] pointer-events-none z-0"></div>
+  <!-- Subtle atmospheric dusky sunset glow layered across top/middle horizon -->
+  <div class="fixed top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[550px] bg-gradient-to-b from-[#FF5A36]/15 via-[#F59E0B]/10 to-transparent blur-[160px] pointer-events-none z-0"></div>
+  <div class="fixed -bottom-24 -left-24 w-[650px] h-[650px] bg-[#FF5A36]/10 rounded-full blur-[180px] pointer-events-none z-0"></div>
+  <div class="fixed -bottom-24 -right-24 w-[650px] h-[650px] bg-[#F59E0B]/8 rounded-full blur-[180px] pointer-events-none z-0"></div>
 
   <!-- Three.js 3D WebGL Canvas Layer (Running behind text and HUD) -->
   <canvas id="webgl" class="fixed inset-0 w-full h-full pointer-events-none z-10"></canvas>
+
+  <!-- ====================================================================
+       LAYER 1: KINETIC BACKDROP TYPOGRAPHY (Behind 3D Scene)
+       ==================================================================== -->
+  <div id="kinetic-bg-wrap" class="fixed inset-0 pointer-events-none overflow-hidden z-5">
+    <div id="kinetic-bg-1" class="kinetic-backdrop font-display font-black text-[clamp(6rem,22vw,22rem)] text-white tracking-tighter leading-none">
+      24OURS
+    </div>
+    <div id="kinetic-bg-2" class="kinetic-backdrop font-orbitron font-extrabold text-[clamp(2.5rem,8vw,8rem)] text-[#FF5A36] tracking-widest mt-28 opacity-10">
+      DRIFT. DINE.
+    </div>
+  </div>
 
   <!-- ====================================================================
        1. TOP NAVIGATION BAR (LIQUID GLASS PILL)
@@ -168,7 +207,7 @@
       <!-- Liquid Glass Floating Pill -->
       <div class="w-full flex items-center justify-between px-3.5 sm:px-5 py-2.5 rounded-full liquid-glass transition-all duration-300">
         
-        <!-- Left: Logo Badge with Orange Accent -->
+        <!-- Left: Logo Badge with Orange Accent Icon -->
         <a href="#hero" class="flex items-center gap-2.5 group shrink-0">
           <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-coral via-[#ff3b14] to-red-700 flex items-center justify-center text-white font-display font-black text-lg sm:text-xl shadow-[0_0_20px_rgba(255,90,54,0.6)] group-hover:scale-105 transition-transform border border-red-400/30">
             24
@@ -186,12 +225,12 @@
         <!-- Center: Nav Items List -->
         <nav class="hidden xl:flex items-center gap-1 px-3 py-1 rounded-full bg-black/40 border border-white/5 backdrop-blur-md">
           <a href="#experience" class="px-3 py-1 text-xs font-mono uppercase tracking-wider rounded-full text-zinc-300 hover:text-white hover:bg-white/10 transition-all">EXPERIENCE HUB</a>
-          <a href="#rc-arena" class="px-3 py-1 text-xs font-mono uppercase tracking-wider rounded-full text-zinc-300 hover:text-white hover:bg-white/10 transition-all">RC ARENA</a>
-          <a href="#dining" class="px-3 py-1 text-xs font-mono uppercase tracking-wider rounded-full text-zinc-300 hover:text-white hover:bg-white/10 transition-all">360° DINING</a>
-          <a href="#events" class="px-3 py-1 text-xs font-mono uppercase tracking-wider rounded-full text-zinc-300 hover:text-white hover:bg-white/10 transition-all">EVENT HALLS</a>
-          <a href="#automotive" class="px-3 py-1 text-xs font-mono uppercase tracking-wider rounded-full text-zinc-300 hover:text-white hover:bg-white/10 transition-all">AUTOMOTIVE</a>
-          <a href="#gallery" class="px-3 py-1 text-xs font-mono uppercase tracking-wider rounded-full text-zinc-300 hover:text-white hover:bg-white/10 transition-all">GALLERY</a>
-          <a href="#about" class="px-3 py-1 text-xs font-mono uppercase tracking-wider rounded-full text-zinc-300 hover:text-white hover:bg-white/10 transition-all">ABOUT</a>
+          <a href="#experience" class="px-3 py-1 text-xs font-mono uppercase tracking-wider rounded-full text-zinc-300 hover:text-white hover:bg-white/10 transition-all">RC ARENA</a>
+          <a href="#experience" class="px-3 py-1 text-xs font-mono uppercase tracking-wider rounded-full text-zinc-300 hover:text-white hover:bg-white/10 transition-all">360° DINING</a>
+          <a href="#experience" class="px-3 py-1 text-xs font-mono uppercase tracking-wider rounded-full text-zinc-300 hover:text-white hover:bg-white/10 transition-all">EVENT HALLS</a>
+          <a href="#specs" class="px-3 py-1 text-xs font-mono uppercase tracking-wider rounded-full text-zinc-300 hover:text-white hover:bg-white/10 transition-all">AUTOMOTIVE</a>
+          <a href="#interactive-physics" class="px-3 py-1 text-xs font-mono uppercase tracking-wider rounded-full text-zinc-300 hover:text-white hover:bg-white/10 transition-all">GALLERY</a>
+          <a href="#leaderboard" class="px-3 py-1 text-xs font-mono uppercase tracking-wider rounded-full text-zinc-300 hover:text-white hover:bg-white/10 transition-all">ABOUT</a>
           <a href="#contact" class="px-3 py-1 text-xs font-mono uppercase tracking-wider rounded-full text-zinc-300 hover:text-white hover:bg-white/10 transition-all">CONTACT</a>
         </nav>
 
@@ -199,8 +238,8 @@
         <div class="flex items-center gap-2 sm:gap-2.5">
           <!-- Audio Toggle inside Nav -->
           <button id="nav-audio-btn" class="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/40 border border-white/10 text-xs font-mono text-zinc-300 hover:text-white hover:border-coral/50 transition-all" title="Toggle Sound">
-            <svg id="nav-audio-icon" class="w-3.5 h-3.5 text-coral animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path>
+            <svg id="nav-audio-icon" class="w-3.5 h-3.5 text-coral" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path>
             </svg>
             <span id="nav-audio-label" class="text-[10px] uppercase text-zinc-300">AUDIO</span>
           </button>
@@ -227,7 +266,7 @@
   <!-- ====================================================================
        2. MAIN HERO SECTION (STATIC HIGH-END LIQUID GLASS HUD)
        ==================================================================== -->
-  <main id="hero" class="relative z-20 min-h-screen flex flex-col justify-between pt-24 sm:pt-28 pb-8 px-4 sm:px-6 lg:px-8 pointer-events-none">
+  <section id="hero" class="relative z-20 min-h-screen flex flex-col justify-between pt-24 sm:pt-28 pb-8 px-4 sm:px-6 lg:px-8 pointer-events-none">
 
     <!-- SUB-HEADER LIVE HUD ROW -->
     <div class="max-w-7xl mx-auto w-full flex flex-wrap items-center justify-between gap-3 text-xs font-mono pointer-events-auto mt-2 sm:mt-4">
@@ -246,7 +285,7 @@
 
       <!-- Right: REPLAY INTRO & AUDIO ON Toggles -->
       <div class="flex items-center gap-2">
-        <button id="replay-intro-btn" class="px-3.5 py-1.5 rounded-full liquid-glass hover:border-coral/60 text-zinc-300 hover:text-white transition-all text-xs font-mono flex items-center gap-1.5 group shadow-lg" title="Watch 3D Camera Boost">
+        <button id="replay-intro-btn" class="px-3.5 py-1.5 rounded-full liquid-glass hover:border-coral/60 text-zinc-300 hover:text-white transition-all text-xs font-mono flex items-center gap-1.5 group shadow-lg" title="Trigger 3D Telemetry Flythrough">
           <svg class="w-3.5 h-3.5 text-coral group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24">
             <path d="M8 5v14l11-7z"></path>
           </svg>
@@ -254,8 +293,8 @@
         </button>
 
         <button id="hud-audio-btn" class="px-3.5 py-1.5 rounded-full liquid-glass hover:border-coral/60 text-white transition-all text-xs font-mono flex items-center gap-2 shadow-lg" aria-label="Toggle sound">
-          <svg id="hud-audio-icon" class="w-3.5 h-3.5 text-coral animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path>
+          <svg id="hud-audio-icon" class="w-3.5 h-3.5 text-coral" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path>
           </svg>
           <span id="hud-audio-text" class="text-[10px] uppercase text-zinc-300 tracking-wider">AUDIO ON</span>
         </button>
@@ -279,7 +318,7 @@
           <svg class="w-3.5 h-3.5 text-amberTrack" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
           </svg>
-          TOP VELOCITY: <span class="text-white font-bold">86 KM/H</span>
+          TOP VELOCITY: <span class="text-white font-bold" id="live-speed-val">86 KM/H</span>
         </span>
       </div>
 
@@ -326,6 +365,20 @@
         </a>
       </div>
 
+      <!-- INTERACTIVE MODE SWITCHER PILL (DRIFT HEAT vs 360° DINING) -->
+      <div class="pt-6 pointer-events-auto flex items-center justify-center">
+        <div class="p-1 rounded-full liquid-glass flex items-center gap-1 border border-white/15 shadow-2xl">
+          <button id="mode-drift-btn" class="px-5 py-2 rounded-full text-xs font-mono font-bold uppercase tracking-wider transition-all flex items-center gap-2 liquid-glass-active text-white">
+            <span class="w-2 h-2 rounded-full bg-coral animate-pulse"></span>
+            <span>🏎️ DRIFT HEAT</span>
+          </button>
+          <button id="mode-dining-btn" class="px-5 py-2 rounded-full text-xs font-mono font-bold uppercase tracking-wider transition-all flex items-center gap-2 text-zinc-400 hover:text-white">
+            <span class="w-2 h-2 rounded-full bg-amberTrack opacity-0"></span>
+            <span>🍷 360° DINING</span>
+          </button>
+        </div>
+      </div>
+
     </div>
 
     <!-- TELEMETRY FOOTER STRIP -->
@@ -342,7 +395,7 @@
         <span class="hidden md:inline text-zinc-400">45 MINS FROM WHITEFIELD, BANGALORE</span>
       </div>
 
-      <a href="#experience" class="flex items-center gap-2 text-zinc-400 hover:text-coral transition-colors group py-1">
+      <a href="#specs" class="flex items-center gap-2 text-zinc-400 hover:text-coral transition-colors group py-1">
         <span class="uppercase tracking-widest text-[11px] font-semibold">SCROLL TO DISCOVER</span>
         <svg class="w-3.5 h-3.5 animate-bounce text-coral" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
@@ -350,7 +403,303 @@
       </a>
     </div>
 
-  </main>
+  </section>
+
+  <!-- ====================================================================
+       SECTION 2: 3D CYLINDRICAL TELEMETRY ARENA SPECS
+       ==================================================================== -->
+  <section id="specs" class="relative z-20 py-24 sm:py-32 px-4 sm:px-6 lg:px-8 border-t border-white/10 subtle-grid">
+    <div class="max-w-7xl mx-auto space-y-12">
+      
+      <div class="text-center max-w-3xl mx-auto space-y-3">
+        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full liquid-glass text-coral text-xs font-mono font-bold uppercase tracking-widest border border-coral/30">
+          ARENA ARCHITECTURE &amp; PERFORMANCE
+        </div>
+        <h2 class="font-display font-black text-3xl sm:text-5xl text-white tracking-tight">
+          CYLINDRICAL ARENA TELEMETRY
+        </h2>
+        <p class="text-zinc-300 font-sans text-sm sm:text-base leading-relaxed">
+          The central 3D ribbon below revolves continuously in virtual space, mapping real-time speed, elevated dining altitudes, and electric horsepower.
+        </p>
+      </div>
+
+      <!-- 4 High-End Liquid Glass Stat Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pt-4">
+        
+        <!-- Stat Card 1 -->
+        <div class="liquid-glass-card p-6 rounded-2xl space-y-3 border border-white/10 hover:border-coral/50 transition-all group">
+          <div class="flex items-center justify-between text-xs font-mono text-zinc-400">
+            <span>VELOCITY</span>
+            <span class="text-coral font-bold group-hover:scale-110 transition-transform">01</span>
+          </div>
+          <div class="font-display font-black text-4xl sm:text-5xl text-white text-glow-white">
+            86 <span class="text-lg font-mono text-coral font-bold">KM/H</span>
+          </div>
+          <p class="text-xs font-sans text-zinc-300 leading-relaxed">
+            Instant dual-motor electric torque with apex drift angles on FIA-inspired asphalt.
+          </p>
+        </div>
+
+        <!-- Stat Card 2 -->
+        <div class="liquid-glass-card p-6 rounded-2xl space-y-3 border border-white/10 hover:border-amberTrack/50 transition-all group">
+          <div class="flex items-center justify-between text-xs font-mono text-zinc-400">
+            <span>ELEVATION</span>
+            <span class="text-amberTrack font-bold group-hover:scale-110 transition-transform">02</span>
+          </div>
+          <div class="font-display font-black text-4xl sm:text-5xl text-white text-glow-amber">
+            360° <span class="text-lg font-mono text-amberTrack font-bold">SKY</span>
+          </div>
+          <p class="text-xs font-sans text-zinc-300 leading-relaxed">
+            Suspended horizon dining pavilion offering panoramic dusk vistas above the racing grid.
+          </p>
+        </div>
+
+        <!-- Stat Card 3 -->
+        <div class="liquid-glass-card p-6 rounded-2xl space-y-3 border border-white/10 hover:border-racingGreen/50 transition-all group">
+          <div class="flex items-center justify-between text-xs font-mono text-zinc-400">
+            <span>CIRCUIT SCALE</span>
+            <span class="text-racingGreen font-bold group-hover:scale-110 transition-transform">03</span>
+          </div>
+          <div class="font-display font-black text-4xl sm:text-5xl text-white">
+            1:10 <span class="text-lg font-mono text-racingGreen font-bold">PRO RC</span>
+          </div>
+          <p class="text-xs font-sans text-zinc-300 leading-relaxed">
+            Championship-grade carpet and clay radio-controlled racing arena with laser telemetry.
+          </p>
+        </div>
+
+        <!-- Stat Card 4 -->
+        <div class="liquid-glass-card p-6 rounded-2xl space-y-3 border border-white/10 hover:border-coral/50 transition-all group">
+          <div class="flex items-center justify-between text-xs font-mono text-zinc-400">
+            <span>HOSPITALITY</span>
+            <span class="text-coral font-bold group-hover:scale-110 transition-transform">04</span>
+          </div>
+          <div class="font-display font-black text-4xl sm:text-5xl text-white text-glow-coral">
+            1,000+ <span class="text-lg font-mono text-coral font-bold">GUESTS</span>
+          </div>
+          <p class="text-xs font-sans text-zinc-300 leading-relaxed">
+            Grand banquet architecture, modular staging, concert acoustics, and VIP skyboxes.
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ====================================================================
+       SECTION 3: INTERACTIVE CHROME PHYSICS SPHERES EXPLOSION
+       ==================================================================== -->
+  <section id="interactive-physics" class="relative z-20 py-24 sm:py-36 px-4 sm:px-6 lg:px-8 border-t border-white/10">
+    <div class="max-w-5xl mx-auto text-center space-y-6">
+      
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full liquid-glass text-amberTrack text-xs font-mono font-bold uppercase tracking-widest border border-amberTrack/30 shadow-amber-glow">
+        TACTILE WEBGL INTERACTION
+      </div>
+
+      <h2 class="font-display font-black text-3xl sm:text-6xl text-white tracking-tight uppercase">
+        EXPLOSION OF INTERACTIVE CHROME PHYSICS
+      </h2>
+
+      <p class="text-zinc-300 font-sans text-sm sm:text-lg max-w-2xl mx-auto leading-relaxed">
+        Hover and move your cursor across the screen. The 3D chrome, amber, and physical liquid glass transmission spheres dynamically repel, bounce, and scatter in real-time response to your pointer coordinates.
+      </p>
+
+      <div class="pt-4 flex items-center justify-center gap-4">
+        <span class="px-4 py-2 rounded-full liquid-glass text-xs font-mono text-zinc-300 border border-white/10">
+          ⚡ 32 MESHES ACTIVE
+        </span>
+        <span class="px-4 py-2 rounded-full liquid-glass text-xs font-mono text-zinc-300 border border-white/10">
+          🔮 REFRACTIVE PHYSICAL GLASS
+        </span>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ====================================================================
+       SECTION 4: EXPERIENCE HUB (4 FLAGSHIP PILLARS)
+       ==================================================================== -->
+  <section id="experience" class="relative z-20 py-24 sm:py-32 px-4 sm:px-6 lg:px-8 border-t border-white/10">
+    <div class="max-w-7xl mx-auto space-y-12">
+      
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <span class="text-coral font-mono text-xs uppercase tracking-widest font-bold">WORLD-CLASS EXPERIENCES</span>
+          <h2 class="font-display font-black text-3xl sm:text-5xl text-white tracking-tight mt-1">THE FOUR PILLARS</h2>
+        </div>
+        <p class="text-xs sm:text-sm text-zinc-400 font-mono max-w-md">
+          Curated attractions architected for motorsport enthusiasts, food connoisseurs, and milestone celebrations.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- Experience 1: Go-Karting -->
+        <div class="liquid-glass-card p-8 rounded-3xl space-y-6 border border-white/10 relative overflow-hidden group hover:border-coral/50 transition-all">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-mono text-coral font-bold px-3 py-1 rounded-full bg-coral/10 border border-coral/30">FLAGSHIP MOTORSPORT</span>
+            <span class="text-xs font-mono text-zinc-400">86 KM/H</span>
+          </div>
+          <div>
+            <h3 class="font-display font-black text-2xl sm:text-3xl text-white group-hover:text-coral transition-colors">ELECTRIC GO-KARTING GRAND PRIX</h3>
+            <p class="text-xs sm:text-sm text-zinc-300 mt-2 font-sans leading-relaxed">
+              Experience championship-grade dual-motor electric karts capable of 86 km/h. Featuring laser lap timing, dynamic digital telemetry, and wide overtaking zones.
+            </p>
+          </div>
+          <button class="open-modal-trigger px-5 py-2.5 rounded-full bg-coral hover:bg-coral-dark text-white font-display font-bold text-xs uppercase tracking-wider transition-all shadow-coral-glow flex items-center gap-2">
+            <span>RESERVE HEAT</span>
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+          </button>
+        </div>
+
+        <!-- Experience 2: 360 Dining -->
+        <div class="liquid-glass-card p-8 rounded-3xl space-y-6 border border-white/10 relative overflow-hidden group hover:border-amberTrack/50 transition-all">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-mono text-amberTrack font-bold px-3 py-1 rounded-full bg-amberTrack/10 border border-amberTrack/30">GASTRONOMY</span>
+            <span class="text-xs font-mono text-zinc-400">ELEVATED DECK</span>
+          </div>
+          <div>
+            <h3 class="font-display font-black text-2xl sm:text-3xl text-white group-hover:text-amberTrack transition-colors">SUSPENDED 360° SKY RESTAURANT</h3>
+            <p class="text-xs sm:text-sm text-zinc-300 mt-2 font-sans leading-relaxed">
+              Dine suspended above the racetrack horizon with unobstructed 360-degree sunset views. Gourmet artisanal grill menu paired with craft mocktails.
+            </p>
+          </div>
+          <button class="open-modal-trigger px-5 py-2.5 rounded-full liquid-glass hover:bg-white/10 text-white font-display font-bold text-xs uppercase tracking-wider transition-all border border-amberTrack/40 flex items-center gap-2">
+            <span>BOOK A TABLE</span>
+            <svg class="w-3.5 h-3.5 text-amberTrack" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+          </button>
+        </div>
+
+        <!-- Experience 3: RC Racing -->
+        <div class="liquid-glass-card p-8 rounded-3xl space-y-6 border border-white/10 relative overflow-hidden group hover:border-racingGreen/50 transition-all">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-mono text-racingGreen font-bold px-3 py-1 rounded-full bg-racingGreen/10 border border-racingGreen/30">PRECISION TECH</span>
+            <span class="text-xs font-mono text-zinc-400">1:10 SCALE</span>
+          </div>
+          <div>
+            <h3 class="font-display font-black text-2xl sm:text-3xl text-white group-hover:text-racingGreen transition-colors">PRO RC SCALE RACING CIRCUIT</h3>
+            <p class="text-xs sm:text-sm text-zinc-300 mt-2 font-sans leading-relaxed">
+              South India's premier indoor precision radio-controlled racetrack. High-grip technical carpet courses and competitive jump ramps with infrared lap transponders.
+            </p>
+          </div>
+          <button class="open-modal-trigger px-5 py-2.5 rounded-full liquid-glass hover:bg-white/10 text-white font-display font-bold text-xs uppercase tracking-wider transition-all border border-racingGreen/40 flex items-center gap-2">
+            <span>ENTER RC GRID</span>
+            <svg class="w-3.5 h-3.5 text-racingGreen" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+          </button>
+        </div>
+
+        <!-- Experience 4: Grand Banquets -->
+        <div class="liquid-glass-card p-8 rounded-3xl space-y-6 border border-white/10 relative overflow-hidden group hover:border-coral/50 transition-all">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-mono text-coral font-bold px-3 py-1 rounded-full bg-coral/10 border border-coral/30">CELEBRATIONS</span>
+            <span class="text-xs font-mono text-zinc-400">1,000+ CAPACITY</span>
+          </div>
+          <div>
+            <h3 class="font-display font-black text-2xl sm:text-3xl text-white group-hover:text-coral transition-colors">GRAND BANQUET ARCHITECTURE</h3>
+            <p class="text-xs sm:text-sm text-zinc-300 mt-2 font-sans leading-relaxed">
+              Magnificent luxury ballrooms and open-air amphitheater for weddings, automotive product reveals, and corporate esports milestones.
+            </p>
+          </div>
+          <button class="open-modal-trigger px-5 py-2.5 rounded-full liquid-glass hover:bg-white/10 text-white font-display font-bold text-xs uppercase tracking-wider transition-all border border-white/20 flex items-center gap-2">
+            <span>ENQUIRE VENUE</span>
+            <svg class="w-3.5 h-3.5 text-coral" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ====================================================================
+       SECTION 5: LIVE CIRCUIT TELEMETRY & LEADERBOARD
+       ==================================================================== -->
+  <section id="leaderboard" class="relative z-20 py-24 sm:py-32 px-4 sm:px-6 lg:px-8 border-t border-white/10 subtle-grid">
+    <div class="max-w-7xl mx-auto space-y-8">
+      
+      <div class="text-center max-w-2xl mx-auto space-y-2">
+        <span class="text-racingGreen font-mono text-xs uppercase tracking-widest font-bold">HOT LAP TELEMETRY</span>
+        <h2 class="font-display font-black text-3xl sm:text-4xl text-white tracking-tight">CIRCUIT HALL OF FAME</h2>
+        <p class="text-xs text-zinc-400 font-mono">LIVE BEST LAP TIMES ACROSS PRO ELECTRIC KARTS</p>
+      </div>
+
+      <div class="liquid-glass-card rounded-2xl overflow-hidden border border-white/10">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left font-mono text-xs">
+            <thead class="bg-black/40 text-zinc-400 border-b border-white/10 uppercase tracking-wider">
+              <tr>
+                <th class="py-3.5 px-4 sm:px-6">POS</th>
+                <th class="py-3.5 px-4 sm:px-6">DRIVER</th>
+                <th class="py-3.5 px-4 sm:px-6">KART #</th>
+                <th class="py-3.5 px-4 sm:px-6">BEST LAP</th>
+                <th class="py-3.5 px-4 sm:px-6">TOP SPEED</th>
+                <th class="py-3.5 px-4 sm:px-6">STATUS</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-white/5 text-zinc-300">
+              <tr class="hover:bg-white/5 transition-colors">
+                <td class="py-3.5 px-4 sm:px-6 font-bold text-coral">P1</td>
+                <td class="py-3.5 px-4 sm:px-6 font-bold text-white">Rohit "Apex" Sharma</td>
+                <td class="py-3.5 px-4 sm:px-6 text-zinc-400">#24</td>
+                <td class="py-3.5 px-4 sm:px-6 font-bold text-racingGreen">41.824s</td>
+                <td class="py-3.5 px-4 sm:px-6">86.2 KM/H</td>
+                <td class="py-3.5 px-4 sm:px-6"><span class="px-2 py-0.5 rounded-full bg-racingGreen/20 text-racingGreen text-[10px] font-bold">RECORD</span></td>
+              </tr>
+              <tr class="hover:bg-white/5 transition-colors">
+                <td class="py-3.5 px-4 sm:px-6 font-bold text-zinc-200">P2</td>
+                <td class="py-3.5 px-4 sm:px-6 font-bold text-white">Aditya Verma</td>
+                <td class="py-3.5 px-4 sm:px-6 text-zinc-400">#07</td>
+                <td class="py-3.5 px-4 sm:px-6 text-zinc-200">42.115s</td>
+                <td class="py-3.5 px-4 sm:px-6">85.4 KM/H</td>
+                <td class="py-3.5 px-4 sm:px-6"><span class="px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 text-[10px]">ACTIVE</span></td>
+              </tr>
+              <tr class="hover:bg-white/5 transition-colors">
+                <td class="py-3.5 px-4 sm:px-6 font-bold text-zinc-200">P3</td>
+                <td class="py-3.5 px-4 sm:px-6 font-bold text-white">Kavya Nambiar</td>
+                <td class="py-3.5 px-4 sm:px-6 text-zinc-400">#12</td>
+                <td class="py-3.5 px-4 sm:px-6 text-zinc-200">42.490s</td>
+                <td class="py-3.5 px-4 sm:px-6">84.8 KM/H</td>
+                <td class="py-3.5 px-4 sm:px-6"><span class="px-2 py-0.5 rounded-full bg-white/10 text-zinc-300 text-[10px]">HOT LAP</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ====================================================================
+       SECTION 6: CONTACT & LOCATION FOOTER
+       ==================================================================== -->
+  <footer id="contact" class="relative z-20 py-16 px-4 sm:px-6 lg:px-8 border-t border-white/10 bg-[#06080d]/90">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8 text-xs font-mono text-zinc-400">
+      
+      <div class="space-y-2 text-center md:text-left">
+        <div class="flex items-center justify-center md:justify-start gap-2">
+          <div class="w-6 h-6 rounded-md bg-coral flex items-center justify-center text-white font-black text-xs font-display">24</div>
+          <span class="text-sm font-display font-black text-white">24OURS DRIFT AND DINE</span>
+        </div>
+        <p class="text-[11px] text-zinc-500 max-w-sm">
+          Sy No. 42/1, Malur Industrial Area, Malur, Kolar District, Karnataka - 563130. 45 Mins from Whitefield, Bangalore.
+        </p>
+      </div>
+
+      <div class="flex flex-wrap items-center justify-center gap-6 text-zinc-300">
+        <a href="#hero" class="hover:text-coral transition-colors">TOP</a>
+        <a href="#experience" class="hover:text-coral transition-colors">EXPERIENCES</a>
+        <a href="#specs" class="hover:text-coral transition-colors">SPECS</a>
+        <a href="#leaderboard" class="hover:text-coral transition-colors">LEADERBOARD</a>
+        <button class="open-modal-trigger hover:text-coral transition-colors">RESERVE</button>
+      </div>
+
+      <div class="text-center md:text-right text-[11px] text-zinc-500">
+        &copy; 2026 24OURS DRIFT AND DINE PVT LTD.<br />ALL RIGHTS RESERVED.
+      </div>
+
+    </div>
+  </footer>
 
   <!-- ====================================================================
        INTERACTIVE BOOKING MODAL (LIQUID GLASS)
@@ -372,7 +721,7 @@
         <!-- Experience Select -->
         <div>
           <label class="block text-xs font-mono text-zinc-400 uppercase tracking-wider mb-1.5">EXPERIENCE TYPE</label>
-          <select class="w-full px-4 py-2.5 rounded-xl bg-black/60 border border-white/15 text-white font-mono text-xs focus:border-coral focus:outline-none">
+          <select id="modal-exp-select" class="w-full px-4 py-2.5 rounded-xl bg-black/60 border border-white/15 text-white font-mono text-xs focus:border-coral focus:outline-none">
             <option>Electric Go-Karting Grand Prix Heat (86 KM/H)</option>
             <option>360° Sky Dining Table (Panoramic Horizon)</option>
             <option>Pro Scale RC Racing Circuit Heat</option>
@@ -399,11 +748,11 @@
 
         <!-- Time Slot -->
         <div>
-          <label class="block text-xs font-mono text-zinc-400 uppercase tracking-wider mb-1.5">PREFFERED TIME SLOT</label>
-          <div class="grid grid-cols-3 gap-2">
-            <button type="button" class="py-2 text-xs font-mono rounded-lg bg-coral/20 border border-coral text-coral font-bold text-center">11:30 AM</button>
-            <button type="button" class="py-2 text-xs font-mono rounded-lg bg-black/40 border border-white/10 text-zinc-300 text-center hover:border-white/30">04:00 PM</button>
-            <button type="button" class="py-2 text-xs font-mono rounded-lg bg-black/40 border border-white/10 text-zinc-300 text-center hover:border-white/30">08:30 PM</button>
+          <label class="block text-xs font-mono text-zinc-400 uppercase tracking-wider mb-1.5">PREFERRED TIME SLOT</label>
+          <div class="grid grid-cols-3 gap-2" id="slot-buttons-group">
+            <button type="button" class="slot-btn py-2 text-xs font-mono rounded-lg bg-coral/20 border border-coral text-coral font-bold text-center">11:30 AM</button>
+            <button type="button" class="slot-btn py-2 text-xs font-mono rounded-lg bg-black/40 border border-white/10 text-zinc-300 text-center hover:border-white/30">04:00 PM</button>
+            <button type="button" class="slot-btn py-2 text-xs font-mono rounded-lg bg-black/40 border border-white/10 text-zinc-300 text-center hover:border-white/30">08:30 PM</button>
           </div>
         </div>
       </div>
@@ -432,7 +781,7 @@
       renderer.setSize(window.innerWidth, window.innerHeight);
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
-      renderer.toneMappingExposure = 1.25;
+      renderer.toneMappingExposure = 1.35;
 
       const scene = new THREE.Scene();
 
@@ -443,124 +792,460 @@
         0.1,
         150
       );
-      camera.position.set(0, 0, 10.5);
+      camera.position.set(0, 0.4, 9.8);
 
-      // 2. STUDIO RACING LIGHTS (ATMOSPHERIC TWILIGHT)
-      const ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
+      // 2. STUDIO RACING & HORIZON LIGHTING
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.95);
       scene.add(ambientLight);
 
       // Key Coral Rim Light
-      const coralRimLight = new THREE.DirectionalLight(0xFF5A36, 3.5);
-      coralRimLight.position.set(-6, 4, 4);
+      const coralRimLight = new THREE.DirectionalLight(0xFF5A36, 4.0);
+      coralRimLight.position.set(-6, 5, 5);
       scene.add(coralRimLight);
 
       // Warm Amber Sunset Rim Light
-      const amberRimLight = new THREE.DirectionalLight(0xF59E0B, 2.5);
-      amberRimLight.position.set(6, -2, 4);
+      const amberRimLight = new THREE.DirectionalLight(0xF59E0B, 3.2);
+      amberRimLight.position.set(6, -2, 5);
       scene.add(amberRimLight);
 
-      // Central Energy Core Light
-      const corePointLight = new THREE.PointLight(0xFF5A36, 4.0, 10);
-      corePointLight.position.set(0, 0, 0);
-      scene.add(corePointLight);
+      // Under-chassis ground glow light
+      const underGlowLight = new THREE.PointLight(0xFF5A36, 4.5, 9);
+      underGlowLight.position.set(0, -0.6, 0);
+      scene.add(underGlowLight);
 
-      // 3. 3D HERO KINETIC CORE & SUSPENDED RACING WHEEL
-      const kineticGroup = new THREE.Group();
-      scene.add(kineticGroup);
+      // 3. CENTRAL FOCAL 3D MODEL: HIGH-POLY ELECTRIC RACING GO-KART & DRIFT ASSEMBLY
+      const focalGroup = new THREE.Group();
+      scene.add(focalGroup);
 
-      // Materials
+      // PBR Materials
       const carbonMat = new THREE.MeshStandardMaterial({
-        color: 0x141822,
-        roughness: 0.35,
-        metalness: 0.8,
+        color: 0x11151e,
+        roughness: 0.28,
+        metalness: 0.85,
       });
 
-      const goldMat = new THREE.MeshStandardMaterial({
-        color: 0xF59E0B,
-        roughness: 0.2,
-        metalness: 0.9,
-      });
-
-      const chromeRotorMat = new THREE.MeshStandardMaterial({
-        color: 0xdde3ed,
-        roughness: 0.12,
-        metalness: 0.95,
-      });
-
-      const coralAccentMat = new THREE.MeshStandardMaterial({
+      const chassisAccentMat = new THREE.MeshStandardMaterial({
         color: 0xFF5A36,
-        roughness: 0.25,
+        roughness: 0.18,
         metalness: 0.5,
+      });
+
+      const chromeMat = new THREE.MeshStandardMaterial({
+        color: 0xe2e8f0,
+        roughness: 0.08,
+        metalness: 0.98,
+      });
+
+      const caliperMat = new THREE.MeshStandardMaterial({
+        color: 0xFF5A36,
+        roughness: 0.2,
+        metalness: 0.6,
         emissive: 0x3d1209,
       });
 
-      // A. Outer Aerodynamic Carbon Ring
-      const outerRingGeo = new THREE.TorusGeometry(2.35, 0.08, 16, 64);
-      const outerRing = new THREE.Mesh(outerRingGeo, carbonMat);
-      kineticGroup.add(outerRing);
-
-      // B. Outer Ring Coral Caliper
-      const caliperGeo = new THREE.BoxGeometry(0.35, 0.65, 0.45);
-      const caliper = new THREE.Mesh(caliperGeo, coralAccentMat);
-      caliper.position.set(2.35, 0, 0);
-      kineticGroup.add(caliper);
-
-      // C. Floating Inner Gyro Ring (Gold / Titanium)
-      const gyroRingGeo = new THREE.TorusGeometry(1.75, 0.05, 12, 48);
-      const gyroRing = new THREE.Mesh(gyroRingGeo, goldMat);
-      kineticGroup.add(gyroRing);
-
-      // D. Slotted Chrome Brake Rotor Disc
-      const rotorGeo = new THREE.CylinderGeometry(1.25, 1.25, 0.04, 32);
-      const rotor = new THREE.Mesh(rotorGeo, chromeRotorMat);
-      rotor.rotation.x = Math.PI / 2;
-      kineticGroup.add(rotor);
-
-      // E. Pulsating High-Voltage Core Sphere
-      const coreGeo = new THREE.SphereGeometry(0.42, 24, 24);
-      const coreMat = new THREE.MeshBasicMaterial({
-        color: 0xFF5A36,
-        wireframe: true,
+      const tireRubberMat = new THREE.MeshStandardMaterial({
+        color: 0x151821,
+        roughness: 0.75,
+        metalness: 0.1,
       });
-      const coreSphere = new THREE.Mesh(coreGeo, coreMat);
-      kineticGroup.add(coreSphere);
+
+      // Refractive Liquid Glass Physical Material for Windshield & Aero-Shield
+      const liquidGlassMat = new THREE.MeshPhysicalMaterial({
+        color: 0xffffff,
+        transmission: 0.95,
+        opacity: 1,
+        transparent: true,
+        roughness: 0.08,
+        ior: 1.52,
+        reflectivity: 0.9,
+        clearcoat: 1.0,
+        clearcoatRoughness: 0.1,
+      });
+
+      const neonCoralMat = new THREE.MeshBasicMaterial({
+        color: 0xFF5A36,
+      });
+
+      // --- ASSEMBLE RACING KART ---
+      const kart = new THREE.Group();
+      focalGroup.add(kart);
+
+      // A. Main Carbon Monocoque Floor / Tub
+      const floorGeo = new THREE.BoxGeometry(1.5, 0.08, 3.2);
+      const floor = new THREE.Mesh(floorGeo, carbonMat);
+      floor.position.set(0, -0.2, 0);
+      kart.add(floor);
+
+      // Underglow LED Strip beneath floor
+      const underglowTubeGeo = new THREE.BoxGeometry(1.1, 0.03, 2.5);
+      const underglowTube = new THREE.Mesh(underglowTubeGeo, neonCoralMat);
+      underglowTube.position.set(0, -0.25, 0);
+      kart.add(underglowTube);
+
+      // B. Aerodynamic Nose Cone & Front Wing Splitter
+      const noseGeo = new THREE.CylinderGeometry(0.35, 0.72, 1.3, 16);
+      const nose = new THREE.Mesh(noseGeo, chassisAccentMat);
+      nose.rotation.x = Math.PI / 2;
+      nose.position.set(0, -0.05, 1.45);
+      kart.add(nose);
+
+      // Front Wing Splitter
+      const fWingGeo = new THREE.BoxGeometry(2.4, 0.05, 0.45);
+      const fWing = new THREE.Mesh(fWingGeo, carbonMat);
+      fWing.position.set(0, -0.16, 2.0);
+      kart.add(fWing);
+
+      // Front Wing Endplates
+      const endplateL = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.28, 0.45), chassisAccentMat);
+      endplateL.position.set(-1.2, -0.05, 2.0);
+      kart.add(endplateL);
+      const endplateR = endplateL.clone();
+      endplateR.position.set(1.2, -0.05, 2.0);
+      kart.add(endplateR);
+
+      // C. Side Pods (Left & Right) with Air Inlets
+      const sidepodGeo = new THREE.BoxGeometry(0.38, 0.32, 1.7);
+      const sidepodL = new THREE.Mesh(sidepodGeo, carbonMat);
+      sidepodL.position.set(-0.85, -0.05, 0);
+      kart.add(sidepodL);
+
+      const sidepodR = new THREE.Mesh(sidepodGeo, carbonMat);
+      sidepodR.position.set(0.85, -0.05, 0);
+      kart.add(sidepodR);
+
+      // Side Pod Accent Decal Strips
+      const decalL = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.12, 1.5), chassisAccentMat);
+      decalL.position.set(-1.05, -0.02, 0);
+      kart.add(decalL);
+      const decalR = decalL.clone();
+      decalR.position.set(1.05, -0.02, 0);
+      kart.add(decalR);
+
+      // D. Cockpit: Racing Bucket Seat, Roll Hoop, and Steering Yoke
+      const seatGeo = new THREE.BoxGeometry(0.68, 0.75, 0.55);
+      const seat = new THREE.Mesh(seatGeo, carbonMat);
+      seat.position.set(0, 0.16, -0.35);
+      seat.rotation.x = -0.18;
+      kart.add(seat);
+
+      // Roll Hoop
+      const rollHoopGeo = new THREE.TorusGeometry(0.32, 0.04, 12, 24);
+      const rollHoop = new THREE.Mesh(rollHoopGeo, chromeMat);
+      rollHoop.position.set(0, 0.56, -0.6);
+      kart.add(rollHoop);
+
+      // Steering Column & Yoke
+      const colGeo = new THREE.CylinderGeometry(0.03, 0.03, 0.65, 10);
+      const steeringCol = new THREE.Mesh(colGeo, carbonMat);
+      steeringCol.position.set(0, 0.18, 0.45);
+      steeringCol.rotation.x = 0.55;
+      kart.add(steeringCol);
+
+      const yokeGeo = new THREE.TorusGeometry(0.18, 0.03, 8, 16, Math.PI * 1.5);
+      const yoke = new THREE.Mesh(yokeGeo, chassisAccentMat);
+      yoke.position.set(0, 0.36, 0.3);
+      yoke.rotation.x = -0.6;
+      kart.add(yoke);
+
+      // E. Refractive Liquid Glass Windshield / Deflector
+      const shieldGeo = new THREE.CylinderGeometry(0.55, 0.65, 0.5, 24, 1, true, -Math.PI * 0.42, Math.PI * 0.84);
+      const shield = new THREE.Mesh(shieldGeo, liquidGlassMat);
+      shield.position.set(0, 0.25, 0.75);
+      shield.rotation.x = -0.32;
+      kart.add(shield);
+
+      // F. Rear High-Downforce Race Wing & Diffuser
+      const pylonGeo = new THREE.BoxGeometry(0.04, 0.45, 0.15);
+      const pylonL = new THREE.Mesh(pylonGeo, carbonMat);
+      pylonL.position.set(-0.55, 0.3, -1.35);
+      kart.add(pylonL);
+      const pylonR = pylonL.clone();
+      pylonR.position.set(0.55, 0.3, -1.35);
+      kart.add(pylonR);
+
+      const rWingGeo = new THREE.BoxGeometry(2.1, 0.05, 0.45);
+      const rWing = new THREE.Mesh(rWingGeo, carbonMat);
+      rWing.position.set(0, 0.52, -1.35);
+      kart.add(rWing);
+
+      // Rear Diffuser
+      const diffuserGeo = new THREE.BoxGeometry(1.3, 0.18, 0.6);
+      const diffuser = new THREE.Mesh(diffuserGeo, carbonMat);
+      diffuser.position.set(0, -0.15, -1.35);
+      diffuser.rotation.x = 0.25;
+      kart.add(diffuser);
+
+      // Rear Twin Thruster Exhaust Ports
+      const exhaustGeo = new THREE.CylinderGeometry(0.12, 0.12, 0.3, 16);
+      const exhaustL = new THREE.Mesh(exhaustGeo, chromeMat);
+      exhaustL.rotation.x = Math.PI / 2;
+      exhaustL.position.set(-0.28, -0.06, -1.55);
+      kart.add(exhaustL);
+
+      const exhaustR = exhaustL.clone();
+      exhaustR.position.set(0.28, -0.06, -1.55);
+      kart.add(exhaustR);
+
+      // Thruster Neon Inner Rings
+      const thrusterNeonL = new THREE.Mesh(new THREE.RingGeometry(0.05, 0.11, 16), neonCoralMat);
+      thrusterNeonL.position.set(-0.28, -0.06, -1.71);
+      kart.add(thrusterNeonL);
+      const thrusterNeonR = thrusterNeonL.clone();
+      thrusterNeonR.position.set(0.28, -0.06, -1.71);
+      kart.add(thrusterNeonR);
+
+      // G. 4 Performance Racing Wheels with Drilled Chrome Rotors & Coral Calipers
+      const wheels = [];
+      const calipers = [];
+
+      function createWheel(x, y, z, isFront) {
+        const wheelGroup = new THREE.Group();
+        wheelGroup.position.set(x, y, z);
+
+        // Slick Racing Tire
+        const tireRadius = isFront ? 0.38 : 0.42;
+        const tireTube = isFront ? 0.18 : 0.22;
+        const tireGeo = new THREE.TorusGeometry(tireRadius, tireTube, 16, 28);
+        const tire = new THREE.Mesh(tireGeo, tireRubberMat);
+        tire.rotation.y = Math.PI / 2;
+        wheelGroup.add(tire);
+
+        // Rim
+        const rimGeo = new THREE.CylinderGeometry(tireRadius * 0.9, tireRadius * 0.9, tireTube * 1.6, 20);
+        const rim = new THREE.Mesh(rimGeo, carbonMat);
+        rim.rotation.z = Math.PI / 2;
+        wheelGroup.add(rim);
+
+        // Center Nut
+        const nutGeo = new THREE.CylinderGeometry(0.08, 0.08, tireTube * 1.8, 6);
+        const nut = new THREE.Mesh(nutGeo, chassisAccentMat);
+        nut.rotation.z = Math.PI / 2;
+        wheelGroup.add(nut);
+
+        // Drilled Chrome Brake Rotor Disc
+        const rotorGeo = new THREE.CylinderGeometry(tireRadius * 0.72, tireRadius * 0.72, 0.02, 24);
+        const rotor = new THREE.Mesh(rotorGeo, chromeMat);
+        rotor.rotation.z = Math.PI / 2;
+        wheelGroup.add(rotor);
+
+        // Racing Coral Caliper
+        const calGeo = new THREE.BoxGeometry(0.12, 0.22, 0.18);
+        const caliper = new THREE.Mesh(calGeo, caliperMat);
+        caliper.position.set(x > 0 ? -0.05 : 0.05, tireRadius * 0.45, 0);
+        wheelGroup.add(caliper);
+        calipers.push(caliper);
+
+        kart.add(wheelGroup);
+        wheels.push(wheelGroup);
+        return wheelGroup;
+      }
+
+      createWheel(-0.98, -0.05, 1.25, true);   // Front Left
+      createWheel(0.98, -0.05, 1.25, true);    // Front Right
+      createWheel(-1.08, -0.02, -0.95, false); // Rear Left
+      createWheel(1.08, -0.02, -0.95, false);  // Rear Right
+
+      // Headlight Projector Lenses with Halo Flares
+      const headlightGeo = new THREE.SphereGeometry(0.12, 16, 16);
+      const headlightMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+      
+      const hlLeft = new THREE.Mesh(headlightGeo, headlightMat);
+      hlLeft.position.set(-0.65, 0.05, 1.78);
+      kart.add(hlLeft);
+
+      const hlRight = hlLeft.clone();
+      hlRight.position.set(0.65, 0.05, 1.78);
+      kart.add(hlRight);
+
+      // Initial angle of kart for dramatic hero presentation
+      kart.rotation.y = -0.35;
+      kart.rotation.x = 0.15;
 
       // 4. ATMOSPHERIC PARTICLES & DUST TIRE SMOKE
-      const PARTICLE_COUNT = 90;
+      const PARTICLE_COUNT = 110;
       const particleGeo = new THREE.BufferGeometry();
       const particlePositions = new Float32Array(PARTICLE_COUNT * 3);
+      const particleVelocities = [];
 
       for (let i = 0; i < PARTICLE_COUNT; i++) {
-        const r = 2.0 + Math.random() * 5.0;
+        const r = 1.5 + Math.random() * 5.5;
         const theta = Math.random() * Math.PI * 2;
         const phi = (Math.random() - 0.5) * Math.PI;
 
         particlePositions[i * 3] = r * Math.cos(theta) * Math.cos(phi);
         particlePositions[i * 3 + 1] = r * Math.sin(phi);
         particlePositions[i * 3 + 2] = r * Math.sin(theta) * Math.cos(phi);
+
+        particleVelocities.push({
+          x: (Math.random() - 0.5) * 0.015,
+          y: (Math.random() - 0.5) * 0.015,
+          z: (Math.random() - 0.5) * 0.015,
+        });
       }
 
       particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
 
       const particleMat = new THREE.PointsMaterial({
         color: 0xFF5A36,
-        size: 0.07,
+        size: 0.08,
         transparent: true,
-        opacity: 0.65,
+        opacity: 0.6,
         blending: THREE.AdditiveBlending,
       });
 
       const particleSystem = new THREE.Points(particleGeo, particleMat);
-      kineticGroup.add(particleSystem);
+      scene.add(particleSystem);
 
-      // 5. INTERACTIVE MOUSE PARALLAX TRACKING
+      // Speed Trail Lines radiating behind kart
+      const speedLinesGroup = new THREE.Group();
+      const speedLineMat = new THREE.LineBasicMaterial({
+        color: 0xFF5A36,
+        transparent: true,
+        opacity: 0.45,
+      });
+
+      for (let i = 0; i < 16; i++) {
+        const lineGeo = new THREE.BufferGeometry();
+        const startZ = -1.5 - Math.random() * 0.5;
+        const endZ = startZ - (2.0 + Math.random() * 3.5);
+        const xPos = (Math.random() - 0.5) * 2.2;
+        const yPos = -0.2 + (Math.random() - 0.5) * 0.6;
+        
+        lineGeo.setFromPoints([
+          new THREE.Vector3(xPos, yPos, startZ),
+          new THREE.Vector3(xPos, yPos, endZ)
+        ]);
+        const line = new THREE.Line(lineGeo, speedLineMat);
+        speedLinesGroup.add(line);
+      }
+      kart.add(speedLinesGroup);
+
+      // 5. 3D CYLINDRICAL TEXT RIBBON (For Section 2)
+      function createTextCylinder() {
+        const textCanvas = document.createElement('canvas');
+        textCanvas.width = 2048;
+        textCanvas.height = 256;
+        const ctx = textCanvas.getContext('2d');
+
+        // Draw dark translucent HUD ribbon background
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+        ctx.fillRect(0, 0, textCanvas.width, textCanvas.height);
+
+        // Double border accent
+        ctx.strokeStyle = '#FF5A36';
+        ctx.lineWidth = 6;
+        ctx.strokeRect(6, 6, textCanvas.width - 12, textCanvas.height - 12);
+
+        // Text typography
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = 'bold 56px "Orbitron", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        const ribbonText = "⚡ 86 KM/H TOP SPEED  •  🍷 SUSPENDED 360° HORIZON DINING  •  🏎️ PRO ELECTRIC KARTS  •  🏁 MALUR RACETRACK  •  ⏱️ 1.2 KM PRO TRACK  •  🌐 24/7 RACE ACCESS  •  ";
+        ctx.fillText(ribbonText, textCanvas.width / 2, textCanvas.height / 2);
+
+        const texture = new THREE.CanvasTexture(textCanvas);
+        texture.wrapS = THREE.RepeatWrapping;
+        texture.wrapT = THREE.ClampToEdgeWrapping;
+
+        const cylGeo = new THREE.CylinderGeometry(5.2, 5.2, 1.6, 64, 1, true);
+        const cylMat = new THREE.MeshBasicMaterial({
+          map: texture,
+          side: THREE.DoubleSide,
+          transparent: true,
+          opacity: 0.88,
+        });
+
+        const cylinderMesh = new THREE.Mesh(cylGeo, cylMat);
+        cylinderMesh.position.set(0, -12, -2);
+        scene.add(cylinderMesh);
+        return cylinderMesh;
+      }
+
+      const textCylinder = createTextCylinder();
+
+      // 6. INTERACTIVE CHROME PHYSICS SPHERES (For Section 3)
+      const physicsSpheresGroup = new THREE.Group();
+      physicsSpheresGroup.position.set(0, -25, 0);
+      scene.add(physicsSpheresGroup);
+
+      const sphereObjects = [];
+      const SPHERE_COUNT = 32;
+
+      const goldMat = new THREE.MeshStandardMaterial({
+        color: 0xF59E0B,
+        roughness: 0.12,
+        metalness: 0.95,
+      });
+
+      for (let i = 0; i < SPHERE_COUNT; i++) {
+        const radius = 0.22 + Math.random() * 0.38;
+        const sphereGeo = new THREE.SphereGeometry(radius, 28, 28);
+        
+        let chosenMat = chromeMat;
+        if (i % 3 === 0) chosenMat = goldMat;
+        else if (i % 5 === 0) chosenMat = liquidGlassMat;
+        else if (i % 7 === 0) chosenMat = caliperMat;
+
+        const mesh = new THREE.Mesh(sphereGeo, chosenMat);
+
+        // Spherical distribution around center
+        const phi = Math.acos(-1 + (2 * i) / SPHERE_COUNT);
+        const theta = Math.sqrt(SPHERE_COUNT * Math.PI) * phi;
+        const dist = 2.4 + Math.random() * 2.2;
+
+        const homeX = dist * Math.cos(theta) * Math.sin(phi);
+        const homeY = dist * Math.sin(theta) * Math.sin(phi);
+        const homeZ = dist * Math.cos(phi);
+
+        mesh.position.set(homeX, homeY, homeZ);
+        physicsSpheresGroup.add(mesh);
+
+        sphereObjects.push({
+          mesh: mesh,
+          home: new THREE.Vector3(homeX, homeY, homeZ),
+          velocity: new THREE.Vector3(),
+          radius: radius,
+        });
+      }
+
+      // 7. FLOATING CHAMPAGNE ORBS (For 360° Dining Mode)
+      const diningOrbsGroup = new THREE.Group();
+      scene.add(diningOrbsGroup);
+      const diningOrbs = [];
+
+      for (let i = 0; i < 18; i++) {
+        const orbGeo = new THREE.SphereGeometry(0.18 + Math.random() * 0.25, 20, 20);
+        const orbMat = (i % 2 === 0) ? goldMat : liquidGlassMat;
+        const orb = new THREE.Mesh(orbGeo, orbMat);
+        
+        const orbData = {
+          mesh: orb,
+          x: (Math.random() - 0.5) * 8.0,
+          y: -4.0 + Math.random() * 8.0,
+          z: (Math.random() - 0.5) * 6.0,
+          speedY: 0.008 + Math.random() * 0.015,
+          oscSpeed: 0.5 + Math.random() * 1.5,
+        };
+        orb.position.set(orbData.x, orbData.y, orbData.z);
+        diningOrbsGroup.add(orb);
+        diningOrbs.push(orbData);
+      }
+      diningOrbsGroup.visible = false; // Hidden in DRIFT mode by default
+
+      // 8. INTERACTIVE MOUSE PARALLAX TRACKING
       const mouse = { x: 0, y: 0, targetX: 0, targetY: 0 };
+      const raycaster = new THREE.Raycaster();
+      const mouseVec = new THREE.Vector2();
 
       window.addEventListener('mousemove', (e) => {
         mouse.targetX = (e.clientX / window.innerWidth) * 2 - 1;
         mouse.targetY = -(e.clientY / window.innerHeight) * 2 + 1;
+        mouseVec.x = mouse.targetX;
+        mouseVec.y = mouse.targetY;
 
-        // Custom Cursor DOM updates
+        // Custom Cursor updates
         const dot = document.getElementById('cursor-dot');
         const ring = document.getElementById('cursor-ring');
         if (dot && ring) {
@@ -569,13 +1254,19 @@
           ring.style.left = `${e.clientX}px`;
           ring.style.top = `${e.clientY}px`;
         }
+
+        // Kinetic backdrop typography parallax
+        const bg1 = document.getElementById('kinetic-bg-1');
+        const bg2 = document.getElementById('kinetic-bg-2');
+        if (bg1) bg1.style.transform = `translate(calc(-50% + ${mouse.targetX * -35}px), calc(-50% + ${mouse.targetY * -20}px))`;
+        if (bg2) bg2.style.transform = `translate(calc(-50% + ${mouse.targetX * 25}px), calc(-50% + ${mouse.targetY * 15}px))`;
       });
 
-      // 6. PROCEDURAL WEB AUDIO SYNTHESIZER
+      // 9. PROCEDURAL WEB AUDIO SYNTHESIZER
       let audioCtx = null;
-      let isAudioOn = true;
+      let isAudioOn = false; // Default to silent / clean start
 
-      function playTone(freq = 440, duration = 0.25) {
+      function playTone(freq = 440, duration = 0.2, type = 'sine') {
         if (!isAudioOn) return;
         try {
           if (!audioCtx) {
@@ -587,11 +1278,11 @@
           const osc = audioCtx.createOscillator();
           const gain = audioCtx.createGain();
 
-          osc.type = 'sine';
+          osc.type = type;
           osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-          osc.frequency.exponentialRampToValueAtTime(freq * 0.7, audioCtx.currentTime + duration);
+          osc.frequency.exponentialRampToValueAtTime(freq * 0.75, audioCtx.currentTime + duration);
 
-          gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+          gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
           gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
 
           osc.connect(gain);
@@ -602,7 +1293,6 @@
         } catch (e) {}
       }
 
-      // Audio Toggle Handlers
       function toggleAudio() {
         isAudioOn = !isAudioOn;
         const navIcon = document.getElementById('nav-audio-icon');
@@ -613,7 +1303,7 @@
           if (navIcon) navIcon.classList.add('animate-pulse');
           if (hudIcon) hudIcon.classList.add('animate-pulse');
           if (hudText) hudText.textContent = 'AUDIO ON';
-          playTone(520, 0.2);
+          playTone(520, 0.25);
         } else {
           if (navIcon) navIcon.classList.remove('animate-pulse');
           if (hudIcon) hudIcon.classList.remove('animate-pulse');
@@ -626,22 +1316,126 @@
 
       // Replay Intro 3D Camera Boost
       document.getElementById('replay-intro-btn').addEventListener('click', () => {
-        playTone(320, 0.4);
+        playTone(300, 0.35, 'sawtooth');
         gsap.to(camera.position, {
-          z: 6.5,
-          duration: 0.8,
+          z: 5.8,
+          duration: 0.7,
           ease: 'power3.in',
           onComplete: () => {
+            playTone(620, 0.4);
             gsap.to(camera.position, {
-              z: 10.5,
-              duration: 1.4,
+              z: 9.8,
+              duration: 1.3,
               ease: 'power2.out',
             });
           },
         });
       });
 
-      // Booking Modal Controls
+      // 10. INTERACTIVE MODE SWITCHER (DRIFT HEAT vs 360° DINING)
+      let currentMode = 'drift';
+      const driftBtn = document.getElementById('mode-drift-btn');
+      const diningBtn = document.getElementById('mode-dining-btn');
+
+      function setMode(mode) {
+        currentMode = mode;
+        if (mode === 'drift') {
+          driftBtn.className = 'px-5 py-2 rounded-full text-xs font-mono font-bold uppercase tracking-wider transition-all flex items-center gap-2 liquid-glass-active text-white';
+          diningBtn.className = 'px-5 py-2 rounded-full text-xs font-mono font-bold uppercase tracking-wider transition-all flex items-center gap-2 text-zinc-400 hover:text-white';
+          
+          // Switch 3D colors & lighting to Coral Drift Heat
+          gsap.to(coralRimLight, { intensity: 4.0, duration: 0.6 });
+          gsap.to(amberRimLight, { intensity: 2.2, duration: 0.6 });
+          underGlowLight.color.setHex(0xFF5A36);
+          caliperMat.color.setHex(0xFF5A36);
+          chassisAccentMat.color.setHex(0xFF5A36);
+          particleMat.color.setHex(0xFF5A36);
+
+          speedLinesGroup.visible = true;
+          diningOrbsGroup.visible = false;
+          playTone(420, 0.25, 'triangle');
+        } else {
+          diningBtn.className = 'px-5 py-2 rounded-full text-xs font-mono font-bold uppercase tracking-wider transition-all flex items-center gap-2 liquid-glass-active text-white border-amberTrack/50 shadow-amber-glow';
+          driftBtn.className = 'px-5 py-2 rounded-full text-xs font-mono font-bold uppercase tracking-wider transition-all flex items-center gap-2 text-zinc-400 hover:text-white';
+
+          // Switch 3D colors & lighting to Warm Amber Sunset Lounge
+          gsap.to(coralRimLight, { intensity: 1.5, duration: 0.6 });
+          gsap.to(amberRimLight, { intensity: 4.5, duration: 0.6 });
+          underGlowLight.color.setHex(0xF59E0B);
+          caliperMat.color.setHex(0xF59E0B);
+          chassisAccentMat.color.setHex(0xF59E0B);
+          particleMat.color.setHex(0xF59E0B);
+
+          speedLinesGroup.visible = false;
+          diningOrbsGroup.visible = true;
+          playTone(580, 0.25, 'sine');
+        }
+      }
+
+      driftBtn.addEventListener('click', () => setMode('drift'));
+      diningBtn.addEventListener('click', () => setMode('dining'));
+
+      // 11. GSAP SCROLLTRIGGER ORCHESTRATION (Noomo Labs Transition Model)
+      if (window.gsap && window.ScrollTrigger) {
+        gsap.registerPlugin(ScrollTrigger);
+
+        // Hero Scroll: Kart accelerates forward, camera pans, kinetic text slides
+        ScrollTrigger.create({
+          trigger: '#hero',
+          start: 'top top',
+          end: 'bottom top',
+          scrub: 1.2,
+          onUpdate: (self) => {
+            const p = self.progress;
+            // Kart accelerates towards camera with slight apex drift lean
+            kart.position.z = p * 4.2;
+            kart.position.y = -p * 1.8;
+            kart.rotation.y = -0.35 + p * 1.2;
+            kart.rotation.z = p * 0.4;
+
+            // Fade background kinetic text
+            const wrap = document.getElementById('kinetic-bg-wrap');
+            if (wrap) wrap.style.opacity = `${1 - p * 1.2}`;
+          },
+        });
+
+        // Section 2 Scroll: Move camera towards 3D text cylinder
+        ScrollTrigger.create({
+          trigger: '#specs',
+          start: 'top bottom',
+          end: 'bottom top',
+          scrub: 1,
+          onUpdate: (self) => {
+            const p = self.progress;
+            textCylinder.position.y = -12 + (p * 12);
+            textCylinder.rotation.y = p * Math.PI * 2.5;
+          },
+        });
+
+        // Section 3 Scroll: Chrome Physics Spheres explosion
+        ScrollTrigger.create({
+          trigger: '#interactive-physics',
+          start: 'top bottom',
+          end: 'bottom top',
+          scrub: 1.5,
+          onUpdate: (self) => {
+            const p = self.progress;
+            physicsSpheresGroup.position.y = -25 + (p * 25);
+            physicsSpheresGroup.rotation.y = p * Math.PI * 1.5;
+          },
+        });
+      }
+
+      // Dynamic Speed Counter Simulation
+      const speedEl = document.getElementById('live-speed-val');
+      setInterval(() => {
+        if (speedEl) {
+          const s = 82 + Math.floor(Math.random() * 7);
+          speedEl.textContent = `${s} KM/H`;
+        }
+      }, 2200);
+
+      // 12. BOOKING MODAL CONTROLS
       const modal = document.getElementById('booking-modal');
       const openModal = () => {
         playTone(600, 0.2);
@@ -653,14 +1447,30 @@
 
       document.getElementById('nav-book-btn').addEventListener('click', openModal);
       document.getElementById('hero-book-btn').addEventListener('click', openModal);
+      document.querySelectorAll('.open-modal-trigger').forEach((btn) => {
+        btn.addEventListener('click', openModal);
+      });
       document.getElementById('close-modal-btn').addEventListener('click', closeModal);
+      
+      // Slot buttons toggle
+      const slotBtns = document.querySelectorAll('.slot-btn');
+      slotBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          slotBtns.forEach((b) => {
+            b.className = 'slot-btn py-2 text-xs font-mono rounded-lg bg-black/40 border border-white/10 text-zinc-300 text-center hover:border-white/30';
+          });
+          btn.className = 'slot-btn py-2 text-xs font-mono rounded-lg bg-coral/20 border border-coral text-coral font-bold text-center';
+          playTone(680, 0.15);
+        });
+      });
+
       document.getElementById('confirm-booking-btn').addEventListener('click', () => {
-        playTone(720, 0.3);
+        playTone(740, 0.35);
         alert('Booking slot requested! Confirmation SMS & Email dispatched.');
         closeModal();
       });
 
-      // 7. RENDER LOOP (60 FPS)
+      // 13. RENDER LOOP (60 FPS)
       const clock = new THREE.Clock();
 
       function animate() {
@@ -670,32 +1480,75 @@
         const time = clock.getElapsedTime();
 
         // Smooth mouse lerp
-        mouse.x += (mouse.targetX - mouse.x) * 0.06;
-        mouse.y += (mouse.targetY - mouse.y) * 0.06;
+        mouse.x += (mouse.targetX - mouse.x) * 0.055;
+        mouse.y += (mouse.targetY - mouse.y) * 0.055;
 
-        // Kinetic Rings Dynamic Rotations
-        outerRing.rotation.z += delta * 0.25;
-        gyroRing.rotation.y = time * 0.45;
-        gyroRing.rotation.x = time * 0.35;
-        rotor.rotation.z += delta * 1.5;
+        // Kart dynamic idle float & mouse-tracking drift tilt physics
+        const idleFloat = Math.sin(time * 2.0) * 0.04;
+        kart.position.y += (idleFloat - kart.position.y) * 0.05;
 
-        // Core Pulse
-        const pulse = 1 + Math.sin(time * 3.5) * 0.08;
-        coreSphere.scale.set(pulse, pulse, pulse);
+        // Smooth tilt following cursor
+        kart.rotation.y = THREE.MathUtils.lerp(kart.rotation.y, -0.35 + (mouse.x * 0.55), 0.045);
+        kart.rotation.z = THREE.MathUtils.lerp(kart.rotation.z, -mouse.x * 0.22, 0.045);
+        kart.rotation.x = THREE.MathUtils.lerp(kart.rotation.x, 0.15 + (-mouse.y * 0.25), 0.045);
 
-        // Entire Kinetic Group tilts subtly with mouse coordinates
-        kineticGroup.rotation.y = THREE.MathUtils.lerp(kineticGroup.rotation.y, mouse.x * 0.4, 0.05);
-        kineticGroup.rotation.x = THREE.MathUtils.lerp(kineticGroup.rotation.x, -mouse.y * 0.4, 0.05);
+        // Spin wheels based on idle / speed
+        for (let i = 0; i < wheels.length; i++) {
+          wheels[i].children[0].rotation.x += delta * 4.0;
+        }
 
-        // Particles rotation
-        particleSystem.rotation.y += delta * 0.08;
+        // Particle system subtle rotation & drift
+        particleSystem.rotation.y += delta * 0.05;
+        particleSystem.rotation.x += delta * 0.02;
+
+        // Continuous cylindrical ribbon spin
+        textCylinder.rotation.y -= delta * 0.25;
+
+        // Floating dining champagne bubbles (in dining mode)
+        if (diningOrbsGroup.visible) {
+          for (let i = 0; i < diningOrbs.length; i++) {
+            const orbData = diningOrbs[i];
+            orbData.mesh.position.y += orbData.speedY;
+            orbData.mesh.position.x += Math.sin(time * orbData.oscSpeed) * 0.005;
+            if (orbData.mesh.position.y > 6.0) {
+              orbData.mesh.position.y = -4.0;
+            }
+          }
+        }
+
+        // Interactive Chrome Physics Spheres Repulsion (Section 3)
+        // Convert mouse coordinates to 3D world interaction point
+        raycaster.setFromCamera(mouseVec, camera);
+        const rayPoint = raycaster.ray.at(10.0, new THREE.Vector3());
+
+        for (let i = 0; i < sphereObjects.length; i++) {
+          const item = sphereObjects[i];
+          const worldPos = new THREE.Vector3();
+          item.mesh.getWorldPosition(worldPos);
+
+          const distToMouse = worldPos.distanceTo(rayPoint);
+          if (distToMouse < 2.5) {
+            // Repulsive impulse
+            const pushDir = new THREE.Vector3().subVectors(worldPos, rayPoint).normalize();
+            const force = (2.5 - distToMouse) * 0.08;
+            item.velocity.add(pushDir.multiplyScalar(force));
+          }
+
+          // Spring back to home position
+          const toHome = new THREE.Vector3().subVectors(item.home, item.mesh.position);
+          item.velocity.add(toHome.multiplyScalar(0.045));
+          item.velocity.multiplyScalar(0.88); // Damping friction
+
+          item.mesh.position.add(item.velocity);
+          item.mesh.rotation.y += delta * 0.5;
+        }
 
         renderer.render(scene, camera);
       }
 
       animate();
 
-      // 8. WINDOW RESIZE HANDLING
+      // 14. WINDOW RESIZE HANDLING
       window.addEventListener('resize', () => {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
